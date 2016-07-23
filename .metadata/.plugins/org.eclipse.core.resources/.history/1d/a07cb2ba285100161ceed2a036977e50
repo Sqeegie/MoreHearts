@@ -1,0 +1,12 @@
+name: MoreHearts
+version: 2.2
+Description: More <3's
+main: com.roei12.mh2.MoreHearts
+Author: roei12
+commands:
+ mh:
+  description: Everything =O
+ morehearts:
+  description: Everything =O (but longer)
+ hearts:
+  description: useful if HideHearts is off.
