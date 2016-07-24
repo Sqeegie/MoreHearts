@@ -280,7 +280,7 @@ public class MoreHearts extends JavaPlugin {
 								sender.sendMessage("" + ChatColor.GREEN + d + " hearts has been added to " + player.getName());
 							}
 							catch (Exception e) {
-								sender.sendMessage(ChatColor.RED + "Something went wrong! Did you enter a word instead of a number? Or try setting the health to below zero?");
+								sender.sendMessage("Something went wrong! Is the entered value a string?!?!?");
 							}
 						}
 					}
@@ -290,17 +290,12 @@ public class MoreHearts extends JavaPlugin {
 							sender.sendMessage(ChatColor.RED + "The player '" + args[1] + "' isn't online!");
 						}
 						else {
-							try {
-								Player player = (Player)opl;
-								double d = Double.parseDouble(args[2]);
-								getConfig().set("Players." + player.getUniqueId() + ".ExtraHearts", Double.valueOf(d));
-								saveConfig();
-								refreshPlayer(player);
-								sender.sendMessage(ChatColor.GREEN + player.getName() + "'s extra hearts set to " + d);
-							}
-							catch (Exception e) {
-								sender.sendMessage(ChatColor.RED + "Something went wrong! Did you enter a word instead of a number? Or try setting the health to below zero?");
-							}
+							Player player = (Player)opl;
+							double d = Double.parseDouble(args[2]);
+							getConfig().set("Players." + player.getUniqueId() + ".ExtraHearts", Double.valueOf(d));
+							saveConfig();
+							refreshPlayer(player);
+							sender.sendMessage(ChatColor.GREEN + player.getName() + "Extra hearts set to " + d);
 						}
 					}
 					else if (args[0].equalsIgnoreCase("addworld")) {

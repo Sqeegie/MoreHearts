@@ -280,7 +280,7 @@ public class MoreHearts extends JavaPlugin {
 								sender.sendMessage("" + ChatColor.GREEN + d + " hearts has been added to " + player.getName());
 							}
 							catch (Exception e) {
-								sender.sendMessage(ChatColor.RED + "Something went wrong! Did you enter a word instead of a number? Or try setting the health to below zero?");
+								sender.sendMessage(ChatColor.RED + "Something went wrong! Did you enter a string instead of a number?");
 							}
 						}
 					}
@@ -296,10 +296,10 @@ public class MoreHearts extends JavaPlugin {
 								getConfig().set("Players." + player.getUniqueId() + ".ExtraHearts", Double.valueOf(d));
 								saveConfig();
 								refreshPlayer(player);
-								sender.sendMessage(ChatColor.GREEN + player.getName() + "'s extra hearts set to " + d);
+								sender.sendMessage(ChatColor.GREEN + player.getName() + " Extra hearts set to " + d);
 							}
 							catch (Exception e) {
-								sender.sendMessage(ChatColor.RED + "Something went wrong! Did you enter a word instead of a number? Or try setting the health to below zero?");
+								sender.sendMessage(ChatColor.RED + "Something went wrong! Did you enter a string instead of a number? Or try setting the health to below zero?");
 							}
 						}
 					}

@@ -70,7 +70,8 @@ public class PlayerListener implements Listener {
 	public void hre(EntityRegainHealthEvent e) {
 		if ((e.getEntity() instanceof Player)) {
 			Player player = (Player)e.getEntity();
-			if (plugin.worlds.contains(player.getWorld().getName())) {
+			if (plugin.worlds.contains(player.getWorld().getName()))
+			{
 				plugin.getConfig().set("Players." + player.getUniqueId() + ".HP", Double.valueOf(player.getHealth()));
 				plugin.saveConfig();
 			}

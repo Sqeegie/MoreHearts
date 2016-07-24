@@ -280,7 +280,7 @@ public class MoreHearts extends JavaPlugin {
 								sender.sendMessage("" + ChatColor.GREEN + d + " hearts has been added to " + player.getName());
 							}
 							catch (Exception e) {
-								sender.sendMessage(ChatColor.RED + "Something went wrong! Did you enter a word instead of a number? Or try setting the health to below zero?");
+								sender.sendMessage(ChatColor.RED + "Something went wrong! Did you enter a word instead of a number?");
 							}
 						}
 					}
