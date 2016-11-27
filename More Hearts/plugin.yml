@@ -1,8 +1,8 @@
 name: MoreHearts
-version: 2.2.0
+version: 2.4.0
 Description: More <3's
 main: com.sqeegie.mh.MoreHearts
-Author: roei12
+Author: roei12, Sqeegie
 commands:
  mh:
   description: Everything =O
