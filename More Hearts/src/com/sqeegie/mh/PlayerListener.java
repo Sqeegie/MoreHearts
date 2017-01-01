@@ -11,6 +11,12 @@ import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 
+/**
+ * 
+ * @authors roei12, Sqeegie
+ *
+ */
+
 public class PlayerListener implements Listener {
 	private MoreHearts plugin;
   
@@ -18,6 +24,7 @@ public class PlayerListener implements Listener {
     	plugin = pl;
 	}
   
+	/** Updates player's health data upon joining. */
 	@EventHandler
 	public void pje(PlayerJoinEvent e) {
 		Player player = e.getPlayer();
@@ -30,6 +37,7 @@ public class PlayerListener implements Listener {
 		plugin.refreshPlayer(player);
 	}
   
+	/** Saves player's health data upon quitting. */
 	@EventHandler
 	public void pqe(PlayerQuitEvent e) {
 		Player player = e.getPlayer();
@@ -41,6 +49,7 @@ public class PlayerListener implements Listener {
 		player.setMaxHealth(20.0D);
 	}
   
+	/** Saves player's health data upon being kicked. */
 	@EventHandler
 	public void pke(PlayerKickEvent e) {
 		Player player = e.getPlayer();
@@ -52,6 +61,7 @@ public class PlayerListener implements Listener {
 		player.setMaxHealth(20.0D);
 	}
   
+	/** Upon teleport, double check More Hearts is enabled for the world, then save the player's current health. */
 	@EventHandler
 	public void pte(PlayerTeleportEvent e) {
 		final Player player = e.getPlayer();
@@ -66,8 +76,9 @@ public class PlayerListener implements Listener {
 		}, 1L);
 	}
   
+	/** Updates file upon a player regaining health. */
 	@EventHandler
-	public void hre(EntityRegainHealthEvent e) {
+	public void hre(EntityRegainHealthEvent e) { // TODO: Replace this with a /heal compatible listener.
 		if ((e.getEntity() instanceof Player)) {
 			Player player = (Player)e.getEntity();
 			if (plugin.worlds.contains(player.getWorld().getName())) {
@@ -77,6 +88,7 @@ public class PlayerListener implements Listener {
 		}
 	}	
   
+	/** Updates file upon a player taking damage. */
 	@EventHandler
 	public void pde(EntityDamageEvent e) {
 		if ((e.getEntity() instanceof Player)) {
