@@ -133,11 +133,11 @@ public class MoreHearts extends JavaPlugin {
 	
 	/** Command handler. */
 	public boolean onCommand(CommandSender sender, Command cmd, String command, String[] args) {
-		if (command.equalsIgnoreCase("hearts")) {
+		if (command.equalsIgnoreCase("hearts") || command.equalsIgnoreCase("h")) {
 			if (sender instanceof Player) {
 				if (sender.hasPermission("morehearts.hearts")) {
 					Player player = getPlayerByUsername(sender.getName());
-					sender.sendMessage(ChatColor.AQUA + "You have " + ChatColor.GREEN + player.getHealth() / 2.0D + ChatColor.AQUA + "/" + ChatColor.GREEN + player.getMaxHealth() / 2.0D + ChatColor.AQUA + " hearts!");
+					sender.sendMessage(ChatColor.AQUA + "You have " + ChatColor.GREEN + player.getHealth() / 2.0D + ChatColor.AQUA + "/" + ChatColor.GREEN + player.getMaxHealth() / 2.0D + ChatColor.AQUA + " hearts. " + ChatColor.GREEN + player.getHealth() + ChatColor.AQUA + "/" + ChatColor.GREEN + player.getMaxHealth() + ChatColor.AQUA + " HP!");
 				}
 				else {
 					sender.sendMessage(noPerm);
@@ -148,7 +148,7 @@ public class MoreHearts extends JavaPlugin {
 		if (command.equalsIgnoreCase("mh") || command.equalsIgnoreCase("morehearts")) {
 			if (args.length == 0) {
 				if (sender.hasPermission("morehearts.help")) {
-					sendMessages(sender, ChatColor.GREEN + "MoreHearts help:" + ChatColor.AQUA + "<> - Required " + ChatColor.GREEN + "[] - Optional;" + ChatColor.AQUA + "/mh refresh -" + ChatColor.GREEN + " reload config;" + ChatColor.AQUA + "/mh add <player> <amount> - " + ChatColor.GREEN + "Add hearts to a player;" + ChatColor.AQUA + "/mh set <player> <amount> - " + ChatColor.GREEN + "Set hearts for a player;" + ChatColor.AQUA + "/mh addworld [world] - " + ChatColor.GREEN + "Enable MoreHearts in a world;" + ChatColor.AQUA + "/mh addallworlds - " + ChatColor.GREEN + "Will enable morehearts in every loaded world;" + ChatColor.AQUA + "/mh removeworld [world] - " + ChatColor.GREEN + "Remove a world;" + ChatColor.AQUA + "/mh worlds - " + ChatColor.GREEN + "All world that MoreHearts is enabled in;" + ChatColor.AQUA + "/mh reset <Password> - " + ChatColor.GREEN + "Delete config;" + ChatColor.AQUA + "/hearts - " + ChatColor.GREEN + "Check your real health (useful only if HideHearts is off");
+					sendMessages(sender, ChatColor.GREEN + "MoreHearts help:" + ChatColor.AQUA + " <> - Required " + ChatColor.GREEN + "[] - Optional;" + ChatColor.AQUA + "/mh refresh -" + ChatColor.GREEN + " reload config;" + ChatColor.AQUA + "/mh add <player> <amount> - " + ChatColor.GREEN + "Add hearts to a player;" + ChatColor.AQUA + "/mh set <player> <amount> - " + ChatColor.GREEN + "Set hearts for a player;" + ChatColor.AQUA + "/mh addworld [world] - " + ChatColor.GREEN + "Enable MoreHearts in a world;" + ChatColor.AQUA + "/mh addallworlds - " + ChatColor.GREEN + "Will enable morehearts in every loaded world;" + ChatColor.AQUA + "/mh removeworld [world] - " + ChatColor.GREEN + "Remove a world;" + ChatColor.AQUA + "/mh worlds - " + ChatColor.GREEN + "All world that MoreHearts is enabled in;" + ChatColor.AQUA + "/mh reset <Password> - " + ChatColor.GREEN + "Delete config;" + ChatColor.AQUA + "/hearts - " + ChatColor.GREEN + "Check your real health (useful only if HideHearts is off");
 				}
 				else {
 					sender.sendMessage(noPerm);
@@ -426,7 +426,12 @@ public class MoreHearts extends JavaPlugin {
 				player.setHealthScale(vanishHeartsDisplayAmount);
 				player.setHealthScaled(vanishHearts);	
 			}
+			if (sum < vanishHeartsDisplayAmount) {
+				player.setHealthScale(sum);
+			}
 			if (!player.isDead()) {
+				player.setHealth(player.getMaxHealth());
+				/*
 				double hp = getConfig().getDouble("players." + player.getUniqueId() + ".HP");
 				if (hp == 0.0D) {
 					player.setHealth(sum);
@@ -437,6 +442,7 @@ public class MoreHearts extends JavaPlugin {
 				else {
 					player.setHealth(hp);
 				}
+				*/
 			}
 		}
 		else {
@@ -464,6 +470,7 @@ public class MoreHearts extends JavaPlugin {
 
 	/** Load the list of enabled worlds. */
 	public void refreshWorlds() {
+		worlds.clear();
 		String ws = getConfig().getString("enabledIn");
 		if (ws != null || !ws.isEmpty()) {
 			if (ws.contains(",")) {
