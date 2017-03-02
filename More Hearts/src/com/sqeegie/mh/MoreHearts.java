@@ -3,6 +3,7 @@ package com.sqeegie.mh;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Set;
 import java.util.logging.Logger;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -10,8 +11,13 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.Configuration;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scoreboard.DisplaySlot;
+import org.bukkit.scoreboard.Objective;
+import org.bukkit.scoreboard.Scoreboard;
 
 /**
  * 
@@ -38,30 +44,38 @@ public class MoreHearts extends JavaPlugin {
 	String noPerm = ChatColor.RED + "You don't have permission to use this command!";
 	double defaultHearts = 20.0d;
 	boolean vanishHearts = false;
-
+	double vanishHeartsDisplayAmount = defaultHearts;
+	private Scoreboard sb;
+	
 	/** Stuff to do when the plugin is being started */
 	public void onEnable() {
 		logger.info("[MoreHearts] MoreHearts v" + getDescription().getVersion() + " has been enabled!");
 
 		Bukkit.getPluginManager().registerEvents(new PlayerListener(this), this);
 
+		this.sb = Bukkit.getScoreboardManager().getMainScoreboard();
+
 		// Create default config if non-existent
-		if (!getConfig().contains("Players")) {
-			int rp = 1000 + (int)(Math.random() * 999999.0D);
-			getConfig().createSection("Players");
-			getConfig().createSection("Permissions");
-			getConfig().set("DefaultHearts", Integer.valueOf(10));
-			getConfig().set("EnableIn", ((World)Bukkit.getWorlds().get(0)).getName());
-			getConfig().set("HideHearts", Boolean.valueOf(false));
-			getConfig().set("ResetPassword", Integer.valueOf(rp));
+		if (!getConfig().contains("players")) {
+			int rp = 1000 + (int) (Math.random() * 999999.0D);
+			getConfig().createSection("players");
+			getConfig().createSection("permissions");
+			getConfig().set("defaultHearts", Integer.valueOf(10));
+			getConfig().set("enabledIn", ((World) Bukkit.getWorlds().get(0)).getName());
+			getConfig().set("resetPassword", Integer.valueOf(rp));
+			getConfig().set("hideHearts", Boolean.valueOf(false));
+			getConfig().set("hideHeartsDisplayAmount", Integer.valueOf(10));
+			getConfig().set("enablePlayerHealthbars", Boolean.valueOf(false));
 			saveConfig();
 		}
 
-		defaultHearts = (getConfig().getDouble("DefaultHearts") * 2.0D);
-		vanishHearts = getConfig().getBoolean("HideHearts");
+		defaultHearts = (getConfig().getDouble("defaultHearts") * 2.0D);
+		vanishHearts = getConfig().getBoolean("hideHearts");
+		vanishHeartsDisplayAmount = (getConfig().getDouble("hideHeartsDisplayAmount") * 2.0D);
 
 		refreshPerms();
 		refreshWorlds();
+		registerHealthBar();
 
 		Player[] arrayOfPlayers = Bukkit._INVALID_getOnlinePlayers();
 		int numOfPlayers = arrayOfPlayers.length;
@@ -81,20 +95,42 @@ public class MoreHearts extends JavaPlugin {
 		for (int i = 0; i < numOfPlayers; i++) {
 			Player player = arrayOfPlayers[i];
 
-			getConfig().set("Players." + player.getUniqueId() + ".LastSeenAs", player.getName());
-			getConfig().set("Players." + player.getUniqueId() + ".HP", Double.valueOf(player.getHealth()));
+			getConfig().set("players." + player.getUniqueId() + ".LastSeenAs", player.getName());
+			getConfig().set("players." + player.getUniqueId() + ".HP", Double.valueOf(player.getHealth()));
 			player.setMaxHealth(20.0D);
 		}
 
 		// Save to config which worlds the plugin is enabled in
-		String ws = (String)worlds.get(0);
+		String ws = (String) worlds.get(0);
 		for (int i = 1; i < worlds.size(); i++) {
-			ws = ws + "," + (String)worlds.get(i);
+			ws = ws + "," + (String) worlds.get(i);
 		}
-		getConfig().set("EnableIn", ws);
+		getConfig().set("enabledIn", ws);
 		saveConfig();
+
+		unregisterHealthBar();
 	}
 
+	public void registerHealthBar() {
+		if (this.sb.getObjective("health") != null) {
+			this.sb.getObjective("health").unregister();
+		}
+		if (getConfig().getBoolean("enablePlayerHealthbars")) {
+			Objective o = this.sb.registerNewObjective("health", "health");
+			o.setDisplayName("HP");
+			o.setDisplaySlot(DisplaySlot.BELOW_NAME);
+		}
+	}
+
+	public void unregisterHealthBar() {
+		Set<Objective> sidebar = sb.getObjectives();
+		for (Objective o : sidebar) {
+			if (o.getName().contains("health")) {
+				o.unregister();
+			}
+		}
+	}
+	
 	/** Command handler. */
 	public boolean onCommand(CommandSender sender, Command cmd, String command, String[] args) {
 		if (command.equalsIgnoreCase("hearts")) {
@@ -112,17 +148,7 @@ public class MoreHearts extends JavaPlugin {
 		if (command.equalsIgnoreCase("mh") || command.equalsIgnoreCase("morehearts")) {
 			if (args.length == 0) {
 				if (sender.hasPermission("morehearts.help")) {
-					sendMessages(sender, ChatColor.GREEN + "MoreHearts help:" + 
-							ChatColor.AQUA + "<> - Required " + ChatColor.GREEN + "[] - Optional;" + 
-							ChatColor.AQUA + "/mh refresh -" + ChatColor.GREEN + " reload config;" + 
-							ChatColor.AQUA + "/mh add <player> <amount> - " + ChatColor.GREEN + "Add hearts to a player;" + 
-							ChatColor.AQUA + "/mh set <player> <amount> - " + ChatColor.GREEN + "Set hearts for a player;" + 
-							ChatColor.AQUA + "/mh addworld [world] - " + ChatColor.GREEN + "Enable MoreHearts in a world;" + 
-							ChatColor.AQUA + "/mh addallworlds - " + ChatColor.GREEN + "Will enable morehearts in every loaded world;" + 
-							ChatColor.AQUA + "/mh removeworld [world] - " + ChatColor.GREEN + "Remove a world;" + 
-							ChatColor.AQUA + "/mh worlds - " + ChatColor.GREEN + "All world that MoreHearts is enabled in;" + 
-							ChatColor.AQUA + "/mh reset <Password> - " + ChatColor.GREEN + "Delete config;" + 
-							ChatColor.AQUA + "/hearts - " + ChatColor.GREEN + "Check your real health (useful only if HideHearts is off");
+					sendMessages(sender, ChatColor.GREEN + "MoreHearts help:" + ChatColor.AQUA + "<> - Required " + ChatColor.GREEN + "[] - Optional;" + ChatColor.AQUA + "/mh refresh -" + ChatColor.GREEN + " reload config;" + ChatColor.AQUA + "/mh add <player> <amount> - " + ChatColor.GREEN + "Add hearts to a player;" + ChatColor.AQUA + "/mh set <player> <amount> - " + ChatColor.GREEN + "Set hearts for a player;" + ChatColor.AQUA + "/mh addworld [world] - " + ChatColor.GREEN + "Enable MoreHearts in a world;" + ChatColor.AQUA + "/mh addallworlds - " + ChatColor.GREEN + "Will enable morehearts in every loaded world;" + ChatColor.AQUA + "/mh removeworld [world] - " + ChatColor.GREEN + "Remove a world;" + ChatColor.AQUA + "/mh worlds - " + ChatColor.GREEN + "All world that MoreHearts is enabled in;" + ChatColor.AQUA + "/mh reset <Password> - " + ChatColor.GREEN + "Delete config;" + ChatColor.AQUA + "/hearts - " + ChatColor.GREEN + "Check your real health (useful only if HideHearts is off");
 				}
 				else {
 					sender.sendMessage(noPerm);
@@ -142,10 +168,10 @@ public class MoreHearts extends JavaPlugin {
 						boolean b = true;
 						sender.sendMessage(ChatColor.GREEN + "MoreHearts is enabled in:");
 						for (Iterator localIterator = worlds.iterator(); localIterator.hasNext();) {
-							str = (String)localIterator.next();
+							str = (String) localIterator.next();
 							if (b) {
 								sender.sendMessage(ChatColor.AQUA + "- " + str);
-							} 
+							}
 							else {
 								sender.sendMessage(ChatColor.GREEN + "- " + str);
 							}
@@ -221,16 +247,16 @@ public class MoreHearts extends JavaPlugin {
 				else if (args.length == 2) {
 					if (!sender.hasPermission("morehearts." + args[0].toLowerCase())) {
 						sender.sendMessage(noPerm);
-					} 
+					}
 					else if (args[0].equalsIgnoreCase("refresh")) {
 						sender.sendMessage(ChatColor.RED + "Usage: /mh refresh");
-					} 
+					}
 					else if (args[0].equalsIgnoreCase("add")) {
 						sender.sendMessage(ChatColor.RED + "Usage: /mh add <Player> <amount>");
-					} 
+					}
 					else if (args[0].equalsIgnoreCase("set")) {
 						sender.sendMessage(ChatColor.RED + "Usage: /mh set <Player <Amount>");
-					} 
+					}
 					else if (args[0].equalsIgnoreCase("addworld")) {
 						if (!worlds.contains(args[1])) {
 							worlds.add(args[1]);
@@ -243,7 +269,7 @@ public class MoreHearts extends JavaPlugin {
 					}
 					else if (args[0].equalsIgnoreCase("addallworlds")) {
 						sender.sendMessage(ChatColor.RED + "Usage: /mh addallworlds");
-					} 
+					}
 					else if (args[0].equalsIgnoreCase("removeworld")) {
 						if (worlds.contains(args[1])) {
 							worlds.remove(args[1]);
@@ -256,14 +282,15 @@ public class MoreHearts extends JavaPlugin {
 					}
 					else if (args[0].equalsIgnoreCase("worlds")) {
 						sender.sendMessage(ChatColor.RED + "Usage: /mh worlds");
-					} 
+					}
 					else if (args[0].equalsIgnoreCase("reset")) {
 						if (args[1].equals(getConfig().getString("ResetPassword"))) {
-							getConfig().set("Players", null);
-							getConfig().set("Permissions", null);
-							getConfig().set("DefaultHearts", Integer.valueOf(10));
-							getConfig().set("EnableIn", Bukkit.getWorlds().get(0));
-							getConfig().set("HideHearts", Boolean.valueOf(true));
+							getConfig().set("players", null);
+							getConfig().set("permissions", null);
+							getConfig().set("defaultHearts", Integer.valueOf(10));
+							getConfig().set("enabledIn", ((World) Bukkit.getWorlds().get(0)).getName());
+							getConfig().set("hideHearts", Boolean.valueOf(false));
+							getConfig().set("enablePlayerHealthbars", Boolean.valueOf(false));
 							saveConfig();
 							refreshPerms();
 							refreshWorlds();
@@ -284,7 +311,7 @@ public class MoreHearts extends JavaPlugin {
 					}
 					else if (args[0].equalsIgnoreCase("refresh")) {
 						sender.sendMessage(ChatColor.RED + "Usage: /mh refresh");
-					} 
+					}
 					else if (args[0].equalsIgnoreCase("add")) {
 						OfflinePlayer opl = Bukkit.getOfflinePlayer(args[1]);
 						if (!opl.isOnline()) {
@@ -292,10 +319,10 @@ public class MoreHearts extends JavaPlugin {
 						}
 						else {
 							try {
-								Player player = (Player)opl;
+								Player player = (Player) opl;
 								double d = Double.parseDouble(args[2]);
-								double eh = getConfig().getDouble("Players." + player.getUniqueId() + ".ExtraHearts");
-								getConfig().set("Players." + player.getUniqueId() + ".ExtraHearts", Double.valueOf(eh + d));
+								double eh = getConfig().getDouble("players." + player.getUniqueId() + ".ExtraHearts");
+								getConfig().set("players." + player.getUniqueId() + ".ExtraHearts", Double.valueOf(eh + d));
 								saveConfig();
 								refreshPlayer(player);
 								sender.sendMessage("" + ChatColor.GREEN + d + " hearts has been added to " + player.getName());
@@ -312,9 +339,9 @@ public class MoreHearts extends JavaPlugin {
 						}
 						else {
 							try {
-								Player player = (Player)opl;
+								Player player = (Player) opl;
 								double d = Double.parseDouble(args[2]);
-								getConfig().set("Players." + player.getUniqueId() + ".ExtraHearts", Double.valueOf(d));
+								getConfig().set("players." + player.getUniqueId() + ".ExtraHearts", Double.valueOf(d));
 								saveConfig();
 								refreshPlayer(player);
 								sender.sendMessage(ChatColor.GREEN + player.getName() + "'s extra hearts set to " + d);
@@ -382,28 +409,31 @@ public class MoreHearts extends JavaPlugin {
 	public void refreshPlayer(Player player) {
 		double sum = defaultHearts;
 		if (worlds.contains(player.getWorld().getName())) {
-			if (getConfig().contains("Players." + player.getUniqueId() + ".ExtraHearts")) {
-				sum += getConfig().getDouble("Players." + player.getUniqueId() + ".ExtraHearts") * 2.0D;
+			if (getConfig().contains("players." + player.getUniqueId() + ".ExtraHearts")) {
+				sum += getConfig().getDouble("players." + player.getUniqueId() + ".ExtraHearts") * 2.0D;
 			}
 			else {
-				getConfig().set("Players." + player.getUniqueId() + ".ExtraHearts", Integer.valueOf(0));
+				getConfig().set("players." + player.getUniqueId() + ".ExtraHearts", Integer.valueOf(0));
 				saveConfig();
 			}
 			for (String str : perms.keySet()) {
 				if (player.isPermissionSet(str)) {
-					sum += ((Double)perms.get(str)).doubleValue();
+					sum += ((Double) perms.get(str)).doubleValue();
 				}
 			}
 			player.setMaxHealth(sum);
-			player.setHealthScaled(false);
+			if (sum > defaultHearts) { // Has extra hearts - enable/disable hide hearts for that player
+				player.setHealthScale(vanishHeartsDisplayAmount);
+				player.setHealthScaled(vanishHearts);	
+			}
 			if (!player.isDead()) {
-				double hp = getConfig().getDouble("Players." + player.getUniqueId() + ".HP");
+				double hp = getConfig().getDouble("players." + player.getUniqueId() + ".HP");
 				if (hp == 0.0D) {
 					player.setHealth(sum);
-				} 
+				}
 				else if (hp > sum) {
 					player.setHealth(sum);
-				} 
+				}
 				else {
 					player.setHealth(hp);
 				}
@@ -417,31 +447,38 @@ public class MoreHearts extends JavaPlugin {
 	/** Load custom permission parameters from config */
 	public void refreshPerms() {
 		perms.clear();
-		for (String str : getConfig().getConfigurationSection("Permissions").getKeys(false)) {
-			perms.put("morehearts." + str, Double.valueOf(getConfig().getDouble("Permissions." + str) * 2.0D));
+		for (String str : getConfig().getConfigurationSection("permissions").getKeys(false)) {
+			perms.put("morehearts." + str, Double.valueOf(getConfig().getDouble("permissions." + str) * 2.0D));
 		}
 	}
 
 	/** Save the list of all enabled worlds. */
 	public void saveWorlds() {
-		String ws = (String)worlds.get(0);
+		String ws = (String) worlds.get(0);
 		for (int a = 1; a < worlds.size(); a++) {
-			ws = ws + "," + (String)worlds.get(a);
+			ws = ws + "," + (String) worlds.get(a);
 		}
-		getConfig().set("EnableIn", ws);
+		getConfig().set("enabledIn", ws);
 		saveConfig();
 	}
 
 	/** Load the list of enabled worlds. */
 	public void refreshWorlds() {
-		String ws = getConfig().getString("EnableIn");
-		String[] Eworlds = ws.split(",");
-		String[] arrayOfString1;
-		int j = (arrayOfString1 = Eworlds).length;
-		for (int i = 0; i < j; i++) {
-			String str = arrayOfString1[i];
+		String ws = getConfig().getString("enabledIn");
+		if (ws != null || !ws.isEmpty()) {
+			if (ws.contains(",")) {
+				String[] Eworlds = ws.split(",");
+				String[] arrayOfString1;
+				int j = (arrayOfString1 = Eworlds).length;
+				for (int i = 0; i < j; i++) {
+					String str = arrayOfString1[i];
 
-			worlds.add(str);
+					worlds.add(str);
+				}
+			}
+			else {
+				worlds.add(ws);
+			}
 		}
 	}
 
@@ -466,7 +503,9 @@ public class MoreHearts extends JavaPlugin {
 		}
 	}
 
-	/** Gets a player object (is that the right name for it?) via an username. */
+	/**
+	 * Gets a player object (is that the right name for it?) via an username.
+	 */
 	public Player getPlayerByUsername(String username) {
 		Player player = getServer().getPlayer(username);
 		return player; // Can return a null value if the username is invalid

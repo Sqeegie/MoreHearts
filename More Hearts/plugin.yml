@@ -1,5 +1,5 @@
 name: MoreHearts
-version: 2.4.1
+version: 2.4.2
 Description: Adds more <3's.
 main: com.sqeegie.mh.MoreHearts
 Author: roei12, Sqeegie
@@ -9,3 +9,4 @@ commands:
   aliases: morehearts
  hearts:
   description: Displays the current health of a player - Useful if HideHearts is off.
+  aliases: h
