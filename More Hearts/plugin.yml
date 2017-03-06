@@ -1,12 +1,12 @@
 name: MoreHearts
-version: 2.4.2
-Description: Adds more <3's.
+version: 2.4.3
+Description: Adds the ability to set custom heart/health amounts for each player.
 main: com.sqeegie.mh.MoreHearts
 Author: roei12, Sqeegie
 commands:
- mh:
-  description: Shows all available commands.
-  aliases: morehearts
  hearts:
-  description: Displays the current health of a player - Useful if HideHearts is off.
+  description: Displays the amount of hearts you currently have. (Useful if HideHearts is enabled.)
   aliases: h
+ morehearts:
+  description: Displays a list with all available commands.
+  aliases: mh

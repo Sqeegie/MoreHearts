@@ -6,6 +6,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityRegainHealthEvent;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -18,34 +19,34 @@ import org.bukkit.event.player.PlayerTeleportEvent;
  */
 
 public class PlayerListener implements Listener {
-	private MoreHearts plugin;
+	private MoreHearts plug;
 
 	public PlayerListener(MoreHearts pl) {
-		plugin = pl;
+		plug = pl;
 	}
 
 	/** Updates player's health data upon joining. */
 	@EventHandler
 	public void pje(PlayerJoinEvent e) {
 		Player player = e.getPlayer();
-		if (!plugin.getConfig().contains("players." + player.getUniqueId())) {
-			plugin.getConfig().set("players." + player.getUniqueId() + ".LastSeenAs", player.getName());
-			plugin.getConfig().set("players." + player.getUniqueId() + ".HP", Double.valueOf(player.getHealth()));
-			plugin.getConfig().set("players." + player.getUniqueId() + ".ExtraHearts", Integer.valueOf(0));
-			plugin.saveConfig();
+		if (!MoreHearts.getConfiguration().contains("players." + player.getUniqueId())) {
+			MoreHearts.getConfiguration().set("players." + player.getUniqueId() + ".lastSeenAs", player.getName());
+			MoreHearts.getConfiguration().set("players." + player.getUniqueId() + ".HP", Double.valueOf(player.getHealth()));
+			MoreHearts.getConfiguration().set("players." + player.getUniqueId() + ".extraHearts", Integer.valueOf(0));
+			MoreHearts.saveConfiguration();
 		}
-		plugin.refreshPlayer(player);
+		MoreHearts.refreshPlayer(player);
 	}
 
 	/** Saves player's health data upon quitting. */
 	@EventHandler
 	public void pqe(PlayerQuitEvent e) {
 		Player player = e.getPlayer();
-		plugin.getConfig().set("players." + player.getUniqueId() + ".LastSeenAs", player.getName());
-		if (plugin.worlds.contains(player.getWorld().getName())) {
-			plugin.getConfig().set("players." + player.getUniqueId() + ".HP", Double.valueOf(player.getHealth()));
+		MoreHearts.getConfiguration().set("players." + player.getUniqueId() + ".lastSeenAs", player.getName());
+		if (MoreHearts.getWorlds().contains(player.getWorld().getName())) {
+			MoreHearts.getConfiguration().set("players." + player.getUniqueId() + ".HP", Double.valueOf(player.getHealth()));
 		}
-		plugin.saveConfig();
+		MoreHearts.saveConfiguration();
 		player.setMaxHealth(20.0D);
 	}
 
@@ -53,11 +54,11 @@ public class PlayerListener implements Listener {
 	@EventHandler
 	public void pke(PlayerKickEvent e) {
 		Player player = e.getPlayer();
-		plugin.getConfig().set("players." + player.getUniqueId() + ".LastSeenAs", player.getName());
-		if (plugin.worlds.contains(player.getWorld().getName())) {
-			plugin.getConfig().set("players." + player.getUniqueId() + ".HP", Double.valueOf(player.getHealth()));
+		MoreHearts.getConfiguration().set("players." + player.getUniqueId() + ".lastSeenAs", player.getName());
+		if (MoreHearts.getWorlds().contains(player.getWorld().getName())) {
+			MoreHearts.getConfiguration().set("players." + player.getUniqueId() + ".HP", Double.valueOf(player.getHealth()));
 		}
-		plugin.saveConfig();
+		MoreHearts.saveConfiguration();
 		player.setMaxHealth(20.0D);
 	}
 
@@ -68,13 +69,13 @@ public class PlayerListener implements Listener {
 	@EventHandler
 	public void pte(PlayerTeleportEvent e) {
 		final Player player = e.getPlayer();
-		if (plugin.worlds.contains(player.getWorld().getName())) {
-			plugin.getConfig().set("players." + player.getUniqueId() + ".HP", Double.valueOf(player.getHealth()));
-			plugin.saveConfig();
+		if (MoreHearts.getWorlds().contains(player.getWorld().getName())) {
+			MoreHearts.getConfiguration().set("players." + player.getUniqueId() + ".HP", Double.valueOf(player.getHealth()));
+			MoreHearts.saveConfiguration();
 		}
-		Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
+		Bukkit.getScheduler().scheduleSyncDelayedTask(MoreHearts.getInstance(), new Runnable() {
 			public void run() {
-				plugin.refreshPlayer(player);
+				MoreHearts.refreshPlayer(player);
 			}
 		}, 1L);
 	}
@@ -84,9 +85,9 @@ public class PlayerListener implements Listener {
 	public void hre(EntityRegainHealthEvent e) { // TODO: Replace this with a /heal compatible listener.
 		if ((e.getEntity() instanceof Player)) {
 			Player player = (Player) e.getEntity();
-			if (plugin.worlds.contains(player.getWorld().getName())) {
-				plugin.getConfig().set("players." + player.getUniqueId() + ".HP", Double.valueOf(player.getHealth()));
-				plugin.saveConfig();
+			if (MoreHearts.getWorlds().contains(player.getWorld().getName())) {
+				MoreHearts.getConfiguration().set("players." + player.getUniqueId() + ".HP", Double.valueOf(player.getHealth()));
+				MoreHearts.saveConfiguration();
 			}
 		}
 	}
@@ -96,10 +97,23 @@ public class PlayerListener implements Listener {
 	public void pde(EntityDamageEvent e) {
 		if ((e.getEntity() instanceof Player)) {
 			Player player = (Player) e.getEntity();
-			if (plugin.worlds.contains(player.getWorld().getName())) {
-				plugin.getConfig().set("players." + player.getUniqueId() + ".HP", Double.valueOf(player.getHealth()));
-				plugin.saveConfig();
+			if (MoreHearts.getWorlds().contains(player.getWorld().getName())) {
+				MoreHearts.getConfiguration().set("players." + player.getUniqueId() + ".HP", Double.valueOf(player.getHealth()));
+				MoreHearts.saveConfiguration();
 			}
 		}
+	}
+	
+	@EventHandler
+	public void onCommand(PlayerCommandPreprocessEvent e) {
+		if (e.getMessage().contains("heal") || e.getMessage().contains("mend")) {
+			if (e.getMessage().equals("/heal") || e.getMessage().equals("/mend") || e.getMessage().equals("/fullheal")) { // Heal command is being executed.
+				// TODO: Finish implementing this
+			}
+			else if (e.getMessage().contains("/heal ") || e.getMessage().contains("/mend ") || e.getMessage().contains("/fullheal ")) { // Possible addition arguments
+				// TODO: Add a better additonal argument checker
+			}
+		}
+
 	}
 }
