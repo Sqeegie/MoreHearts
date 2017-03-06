@@ -10,6 +10,7 @@ import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 
 /**
@@ -27,8 +28,8 @@ public class PlayerListener implements Listener {
 
 	/** Updates player's health data upon joining. */
 	@EventHandler
-	public void pje(PlayerJoinEvent e) {
-		Player player = e.getPlayer();
+	public void onPlayerJoin(PlayerJoinEvent event) {
+		Player player = event.getPlayer();
 		if (!MoreHearts.getConfiguration().contains("players." + player.getUniqueId())) {
 			MoreHearts.getConfiguration().set("players." + player.getUniqueId() + ".lastSeenAs", player.getName());
 			MoreHearts.getConfiguration().set("players." + player.getUniqueId() + ".HP", Double.valueOf(player.getHealth()));
@@ -40,8 +41,8 @@ public class PlayerListener implements Listener {
 
 	/** Saves player's health data upon quitting. */
 	@EventHandler
-	public void pqe(PlayerQuitEvent e) {
-		Player player = e.getPlayer();
+	public void onPlayerQuit(PlayerQuitEvent event) {
+		Player player = event.getPlayer();
 		MoreHearts.getConfiguration().set("players." + player.getUniqueId() + ".lastSeenAs", player.getName());
 		if (MoreHearts.getWorlds().contains(player.getWorld().getName())) {
 			MoreHearts.getConfiguration().set("players." + player.getUniqueId() + ".HP", Double.valueOf(player.getHealth()));
@@ -52,8 +53,8 @@ public class PlayerListener implements Listener {
 
 	/** Saves player's health data upon being kicked. */
 	@EventHandler
-	public void pke(PlayerKickEvent e) {
-		Player player = e.getPlayer();
+	public void onPlayerKick(PlayerKickEvent event) {
+		Player player = event.getPlayer();
 		MoreHearts.getConfiguration().set("players." + player.getUniqueId() + ".lastSeenAs", player.getName());
 		if (MoreHearts.getWorlds().contains(player.getWorld().getName())) {
 			MoreHearts.getConfiguration().set("players." + player.getUniqueId() + ".HP", Double.valueOf(player.getHealth()));
@@ -67,8 +68,8 @@ public class PlayerListener implements Listener {
 	 * save the player's current health.
 	 */
 	@EventHandler
-	public void pte(PlayerTeleportEvent e) {
-		final Player player = e.getPlayer();
+	public void onPlayerTeleport(PlayerTeleportEvent event) {
+		final Player player = event.getPlayer();
 		if (MoreHearts.getWorlds().contains(player.getWorld().getName())) {
 			MoreHearts.getConfiguration().set("players." + player.getUniqueId() + ".HP", Double.valueOf(player.getHealth()));
 			MoreHearts.saveConfiguration();
@@ -82,9 +83,9 @@ public class PlayerListener implements Listener {
 
 	/** Updates file upon a player regaining health. */
 	@EventHandler
-	public void hre(EntityRegainHealthEvent e) { // TODO: Replace this with a /heal compatible listener.
-		if ((e.getEntity() instanceof Player)) {
-			Player player = (Player) e.getEntity();
+	public void onHealthRegain(EntityRegainHealthEvent event) { // TODO: Replace this with a /heal compatible listener.
+		if ((event.getEntity() instanceof Player)) {
+			Player player = (Player) event.getEntity();
 			if (MoreHearts.getWorlds().contains(player.getWorld().getName())) {
 				MoreHearts.getConfiguration().set("players." + player.getUniqueId() + ".HP", Double.valueOf(player.getHealth()));
 				MoreHearts.saveConfiguration();
@@ -94,9 +95,9 @@ public class PlayerListener implements Listener {
 
 	/** Updates file upon a player taking damage. */
 	@EventHandler
-	public void pde(EntityDamageEvent e) {
-		if ((e.getEntity() instanceof Player)) {
-			Player player = (Player) e.getEntity();
+	public void onPlayerDamage(EntityDamageEvent event) {
+		if ((event.getEntity() instanceof Player)) {
+			Player player = (Player) event.getEntity();
 			if (MoreHearts.getWorlds().contains(player.getWorld().getName())) {
 				MoreHearts.getConfiguration().set("players." + player.getUniqueId() + ".HP", Double.valueOf(player.getHealth()));
 				MoreHearts.saveConfiguration();
@@ -104,13 +105,22 @@ public class PlayerListener implements Listener {
 		}
 	}
 	
+    @EventHandler
+    public void onPlayerRespawn(PlayerRespawnEvent event) {
+        Player player = event.getPlayer();
+        if (MoreHearts.getWorlds().contains(player.getWorld().getName())) {
+            MoreHearts.getConfiguration().set("Players." + player.getUniqueId() + ".HP", Double.valueOf(player.getHealth()));
+            MoreHearts.saveConfiguration();
+        }
+    }
+    
 	@EventHandler
-	public void onCommand(PlayerCommandPreprocessEvent e) {
-		if (e.getMessage().contains("heal") || e.getMessage().contains("mend")) {
-			if (e.getMessage().equals("/heal") || e.getMessage().equals("/mend") || e.getMessage().equals("/fullheal")) { // Heal command is being executed.
+	public void onCommandPreprocess(PlayerCommandPreprocessEvent event) {
+		if (event.getMessage().contains("heal") || event.getMessage().contains("mend")) {
+			if (event.getMessage().equals("/heal") || event.getMessage().equals("/mend") || event.getMessage().equals("/fullheal")) { // Heal command is being executed.
 				// TODO: Finish implementing this
 			}
-			else if (e.getMessage().contains("/heal ") || e.getMessage().contains("/mend ") || e.getMessage().contains("/fullheal ")) { // Possible addition arguments
+			else if (event.getMessage().contains("/heal ") || event.getMessage().contains("/mend ") || event.getMessage().contains("/fullheal ")) { // Possible addition arguments
 				// TODO: Add a better additonal argument checker
 			}
 		}

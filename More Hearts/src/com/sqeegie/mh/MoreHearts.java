@@ -26,7 +26,6 @@ import com.sqeegie.mh.commands.CommandHandler;
 // TODO: Add max health limit to config.
 // TODO: Add compatibility with /heal commands.
 // TODO: Add healthbar symbol.
-// TODO: Add onEvent from refactor branch.
 
 // TODO: Add additional command aliases?
 // TODO: Add separate config files for each player?
