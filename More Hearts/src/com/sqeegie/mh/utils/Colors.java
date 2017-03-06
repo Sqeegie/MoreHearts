@@ -1,4 +1,4 @@
-package com.sqeegie.mh;
+package com.sqeegie.mh.utils;
 
 import org.bukkit.ChatColor;
 

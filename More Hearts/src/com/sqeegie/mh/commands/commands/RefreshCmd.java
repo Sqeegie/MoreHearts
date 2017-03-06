@@ -5,11 +5,11 @@ import java.util.List;
 
 import org.bukkit.command.CommandSender;
 
-import com.sqeegie.mh.Colors;
 import com.sqeegie.mh.MoreHearts;
 import com.sqeegie.mh.commands.CommandBase;
 import com.sqeegie.mh.commands.CommandException;
 import com.sqeegie.mh.commands.Permissions;
+import com.sqeegie.mh.utils.Colors;
 
 public class RefreshCmd extends CommandBase {
 	

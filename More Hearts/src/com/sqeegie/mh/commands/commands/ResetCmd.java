@@ -8,11 +8,11 @@ import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 
-import com.sqeegie.mh.Colors;
 import com.sqeegie.mh.MoreHearts;
 import com.sqeegie.mh.commands.CommandBase;
 import com.sqeegie.mh.commands.CommandException;
 import com.sqeegie.mh.commands.Permissions;
+import com.sqeegie.mh.utils.Colors;
 
 public class ResetCmd extends CommandBase {
 	
@@ -39,18 +39,7 @@ public class ResetCmd extends CommandBase {
 	@Override
 	public void execute(CommandSender sender, String cmdName, String[] args) throws CommandException {
 		if (args[1].equals(MoreHearts.getConfiguration().getString("resetPassword"))) {
-			MoreHearts.getConfiguration().set("players", null);
-			MoreHearts.getConfiguration().set("permissions", null);
-			MoreHearts.getConfiguration().set("defaultHearts", Integer.valueOf(10));
-			MoreHearts.getConfiguration().set("enabledIn", ((World) Bukkit.getWorlds().get(0)).getName());
-			MoreHearts.getConfiguration().set("hideHearts", Boolean.valueOf(false));
-			MoreHearts.getConfiguration().set("hideHeartsDisplayAmount", Integer.valueOf(10));
-			MoreHearts.getConfiguration().set("enablePlayerHealthbars", Boolean.valueOf(false));
-			MoreHearts.saveConfiguration();
-			MoreHearts.refreshPerms();
-			MoreHearts.refreshWorlds();
-			MoreHearts.refreshAllPlayers();
-			sender.sendMessage(Colors.SECONDARY + "Config has been reset!");
+			MoreHearts.getInstance().saveDefaultConfig();
 		}
 		else {
 			sender.sendMessage(Colors.ERROR + "Incorrect Password");

@@ -16,6 +16,7 @@ import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
 
 import com.sqeegie.mh.commands.CommandHandler;
+import com.sqeegie.mh.listeners.PlayerListener;
 
 /**
  * 
@@ -24,8 +25,8 @@ import com.sqeegie.mh.commands.CommandHandler;
  */
 
 // TODO: Add max health limit to config.
+// TODO: Add healthbar symbol(s).
 // TODO: Add compatibility with /heal commands.
-// TODO: Add healthbar symbol.
 
 // TODO: Add additional command aliases?
 // TODO: Add separate config files for each player?
@@ -64,28 +65,16 @@ public class MoreHearts extends JavaPlugin {
 		if (getCommand("morehearts") == null) {
 			logger.severe("Unabled to register commands! Disabling plugin...");
 			instance.setEnabled(false);
-		}
+		} // Separated 
 		
 		getCommand("morehearts").setExecutor(new CommandHandler());
 		getCommand("hearts").setExecutor(new CommandHandler());
 		Bukkit.getPluginManager().registerEvents(new PlayerListener(this), this);
 
-		this.scoreBoard = Bukkit.getScoreboardManager().getMainScoreboard();
+		scoreBoard = Bukkit.getScoreboardManager().getMainScoreboard();
 
-		// Create default config if non-existent
-		if (!getConfig().contains("players")) {
-			int randomPassword = 1000 + (int) (Math.random() * 999999.0D);
-			getConfig().createSection("players");
-			getConfig().createSection("permissions");
-			getConfig().set("defaultHearts", Integer.valueOf(10));
-			getConfig().set("enabledIn", ((World) Bukkit.getWorlds().get(0)).getName());
-			getConfig().set("resetPassword", Integer.valueOf(randomPassword));
-			getConfig().set("hideHearts", Boolean.valueOf(false));
-			getConfig().set("hideHeartsDisplayAmount", Integer.valueOf(10));
-			getConfig().set("enablePlayerHealthbars", Boolean.valueOf(false));
-			saveConfig();
-		}
-
+		saveDefaultConfig();
+		
 		defaultHearts = (getConfig().getDouble("defaultHearts") * 2.0D);
 		vanishHearts = getConfig().getBoolean("hideHearts");
 		vanishHeartsDisplayAmount = (getConfig().getDouble("hideHeartsDisplayAmount") * 2.0D);

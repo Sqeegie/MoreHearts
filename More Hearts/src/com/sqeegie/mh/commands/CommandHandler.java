@@ -9,7 +9,6 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import com.sqeegie.mh.Colors;
 import com.sqeegie.mh.MoreHearts;
 import com.sqeegie.mh.commands.commands.AddAllWorldsCmd;
 import com.sqeegie.mh.commands.commands.AddHeartsCmd;
@@ -21,6 +20,7 @@ import com.sqeegie.mh.commands.commands.ResetCmd;
 import com.sqeegie.mh.commands.commands.SetHeartsCmd;
 import com.sqeegie.mh.commands.commands.VersionCmd;
 import com.sqeegie.mh.commands.commands.WorldsCmd;
+import com.sqeegie.mh.utils.Colors;
 
 public class CommandHandler implements CommandExecutor {
 

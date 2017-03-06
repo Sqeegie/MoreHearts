@@ -1,0 +1,32 @@
+# All the players' statistics.
+players: {}
+
+# Custom permissions.
+permissions: {}
+
+# How many hearts by default should a player have (Default: 10)
+defaultHearts: 10
+
+# A list of worlds in which MoreHearts is enabled in. Each entry is separated by a comma.
+enabledIn: world,world_nether,world_the_end
+
+# Password needed to reset the configuration file to the default values. (Default: 465004)
+resetPassword: 465004
+
+# Should extra hearts be hidden? (Default: false)
+hideHearts: false
+
+# The amount of hearts that should be displayed if "hideHearts" is enabled. (Default: 10)
+hideHeartsDisplayAmount: 10
+
+# Should healthbars above each player be enabled? (Default: false)
+enablePlayerHealthbars: false
+
+# Should the healthbars be displayed in hearts or health points? Options are: 'hearts' or 'health' (Default: hearts)
+healthbarUnit: hearts
+
+# Suffix on the healthbars. Options are: 'heart' - Heart symbol, 'HP' - Words "HP", 'none' - No suffix. (Default: heart)
+healthbarSuffix: heart
+
+# Suffix color. Use MC's color codes.
+healthbarSuffixColor: &c
