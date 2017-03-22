@@ -13,6 +13,7 @@ import com.sqeegie.mh.commands.CommandBase;
 import com.sqeegie.mh.commands.CommandException;
 import com.sqeegie.mh.commands.Permissions;
 import com.sqeegie.mh.utils.Colors;
+import com.sqeegie.mh.utils.MoreHeartsUtil;
 
 public class AddHeartsCmd extends CommandBase {
 
@@ -47,6 +48,14 @@ public class AddHeartsCmd extends CommandBase {
 				Player player = (Player) offlinePlayer;
 				double extraHeartsToAdd = Double.parseDouble(args[1]);
 				double currentExtraHearts = MoreHearts.getConfiguration().getDouble("players." + player.getUniqueId() + ".extraHearts");
+				
+				double maxHealthCheck = MoreHearts.getInstance().getConfig().getInt("maxHearts");
+				double newMaxHealth = MoreHeartsUtil.round(extraHeartsToAdd + currentExtraHearts);
+				if (newMaxHealth > maxHealthCheck) {
+					sender.sendMessage("" + Colors.ERROR + "Cannot add that many hearts! The maximum number of hearts is " + maxHealthCheck);
+					return;
+				}
+				
 				MoreHearts.getConfiguration().set("players." + player.getUniqueId() + ".extraHearts", Double.valueOf(currentExtraHearts + extraHeartsToAdd));
 				MoreHearts.saveConfiguration();
 				MoreHearts.refreshPlayer(player);

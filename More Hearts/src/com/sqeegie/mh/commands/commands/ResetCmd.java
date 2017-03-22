@@ -39,6 +39,7 @@ public class ResetCmd extends CommandBase {
 	@Override
 	public void execute(CommandSender sender, String cmdName, String[] args) throws CommandException {
 		if (args[1].equals(MoreHearts.getConfiguration().getString("resetPassword"))) {
+			// TODO: Fix this bug VVV. Doesn't actually reset without deleting the current config file first.
 			MoreHearts.getInstance().saveDefaultConfig();
 		}
 		else {

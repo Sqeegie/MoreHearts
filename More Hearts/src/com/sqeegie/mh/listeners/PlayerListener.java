@@ -14,6 +14,7 @@ import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 
 import com.sqeegie.mh.MoreHearts;
+import com.sqeegie.mh.utils.MoreHeartsUtil;
 
 /**
  * 
@@ -39,6 +40,7 @@ public class PlayerListener implements Listener {
 			MoreHearts.saveConfiguration();
 		}
 		MoreHearts.refreshPlayer(player);
+		MoreHeartsUtil.sendUpdatedHealthIfEnabled(player);
 	}
 
 	/** Saves player's health data upon quitting. */
@@ -81,6 +83,7 @@ public class PlayerListener implements Listener {
 				MoreHearts.refreshPlayer(player);
 			}
 		}, 1L);
+		MoreHeartsUtil.sendUpdatedHealthIfEnabled(player);
 	}
 
 	/** Updates file upon a player regaining health. */
@@ -92,6 +95,7 @@ public class PlayerListener implements Listener {
 				MoreHearts.getConfiguration().set("players." + player.getUniqueId() + ".HP", Double.valueOf(player.getHealth()));
 				MoreHearts.saveConfiguration();
 			}
+			MoreHeartsUtil.sendUpdatedHealthIfEnabled(player);
 		}
 	}
 
@@ -104,6 +108,7 @@ public class PlayerListener implements Listener {
 				MoreHearts.getConfiguration().set("players." + player.getUniqueId() + ".HP", Double.valueOf(player.getHealth()));
 				MoreHearts.saveConfiguration();
 			}
+			MoreHeartsUtil.sendUpdatedHealthIfEnabled(player);
 		}
 	}
 	
@@ -114,8 +119,10 @@ public class PlayerListener implements Listener {
             MoreHearts.getConfiguration().set("Players." + player.getUniqueId() + ".HP", Double.valueOf(player.getHealth()));
             MoreHearts.saveConfiguration();
         }
+        MoreHeartsUtil.sendUpdatedHealthIfEnabled(player);
     }
     
+    /** Attempted fix for /heal-esk commands. */
 	@EventHandler
 	public void onCommandPreprocess(PlayerCommandPreprocessEvent event) {
 		if (event.getMessage().contains("heal") || event.getMessage().contains("mend")) {
@@ -123,7 +130,7 @@ public class PlayerListener implements Listener {
 				// TODO: Finish implementing this
 			}
 			else if (event.getMessage().contains("/heal ") || event.getMessage().contains("/mend ") || event.getMessage().contains("/fullheal ")) { // Possible addition arguments
-				// TODO: Add a better additonal argument checker
+				// TODO: Add a better additional argument checker
 			}
 		}
 

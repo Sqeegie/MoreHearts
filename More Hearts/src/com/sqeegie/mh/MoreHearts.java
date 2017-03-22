@@ -13,10 +13,12 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
+import org.bukkit.scoreboard.Score;
 import org.bukkit.scoreboard.Scoreboard;
 
 import com.sqeegie.mh.commands.CommandHandler;
 import com.sqeegie.mh.listeners.PlayerListener;
+import com.sqeegie.mh.utils.MoreHeartsUtil;
 
 /**
  * 
@@ -35,9 +37,9 @@ import com.sqeegie.mh.listeners.PlayerListener;
 
 @SuppressWarnings({ "rawtypes", "unchecked", "deprecation" })
 public class MoreHearts extends JavaPlugin {
-	
+
 	private static MoreHearts instance;
-	
+
 	/** Default values */
 	static Logger logger = Logger.getLogger("minecraft");
 	static HashMap<String, Double> perms = new HashMap();
@@ -49,31 +51,31 @@ public class MoreHearts extends JavaPlugin {
 	private static String version;
 	private static FileConfiguration config;
 	private Scoreboard scoreBoard;
-	
+
 	public static void log(String logs) {
 		logger.info(logs);
 	}
-	
+
 	/** Stuff to do when the plugin is being started */
 	public void onEnable() {
 		version = getDescription().getVersion();
 		config = getConfig();
 		instance = this;
-		
+
 		log("[MoreHearts] MoreHearts v" + version + " has been enabled!");
 
 		if (getCommand("morehearts") == null) {
 			logger.severe("Unabled to register commands! Disabling plugin...");
 			instance.setEnabled(false);
-		} // Separated 
-		
+		}
+
 		getCommand("morehearts").setExecutor(new CommandHandler());
 		getCommand("hearts").setExecutor(new CommandHandler());
 		Bukkit.getPluginManager().registerEvents(new PlayerListener(this), this);
 
 		scoreBoard = Bukkit.getScoreboardManager().getMainScoreboard();
 
-		saveDefaultConfig();
+		MoreHeartsUtil.loadConfig("config.yml", this);
 		
 		defaultHearts = (getConfig().getDouble("defaultHearts") * 2.0D);
 		vanishHearts = getConfig().getBoolean("hideHearts");
@@ -124,11 +126,11 @@ public class MoreHearts extends JavaPlugin {
 	public static void saveConfiguration() {
 		getInstance().saveConfig();
 	}
-	
+
 	public static void reloadConfiguration() {
 		getInstance().reloadConfig();
 	}
-	
+
 	public static String getVersion() {
 		return version;
 	}
@@ -144,11 +146,11 @@ public class MoreHearts extends JavaPlugin {
 	public static ArrayList<String> getWorlds() {
 		return worlds;
 	}
-	
+
 	public static void addWorld(String world) {
 		MoreHearts.worlds.add(world);
 	}
-	
+
 	public static void removeWorld(String world) {
 		MoreHearts.worlds.remove(world);
 	}
@@ -159,7 +161,12 @@ public class MoreHearts extends JavaPlugin {
 		}
 		if (getConfig().getBoolean("enablePlayerHealthbars")) {
 			Objective o = this.scoreBoard.registerNewObjective("health", "health");
-			o.setDisplayName("HP");
+			if (getConfig().getBoolean("enableHealthbarSuffix"))
+				o.setDisplayName(MoreHeartsUtil.replaceSymbols(getConfig().getString("healthbarSuffix")));
+			if (getConfig().getBoolean("useHeartsAsHealthbarType")) { // TODO: Fix this... Not working for some reason.
+				int health = o.getScore("health").getScore();
+				o.getScore("health").setScore(MoreHeartsUtil.round(health / 2));
+			}
 			o.setDisplaySlot(DisplaySlot.BELOW_NAME);
 		}
 	}
@@ -172,7 +179,7 @@ public class MoreHearts extends JavaPlugin {
 			}
 		}
 	}
-	
+
 	public static <T> List<T> newList() {
 		return new ArrayList<T>();
 	}
@@ -196,7 +203,7 @@ public class MoreHearts extends JavaPlugin {
 			player.setMaxHealth(sum);
 			if (sum > defaultHearts) { // Has extra hearts - enable/disable hide hearts for that player
 				player.setHealthScale(vanishHeartsDisplayAmount);
-				player.setHealthScaled(vanishHearts);	
+				player.setHealthScaled(vanishHearts);
 			}
 			if (sum < vanishHeartsDisplayAmount) {
 				player.setHealthScale(sum);
@@ -204,17 +211,11 @@ public class MoreHearts extends JavaPlugin {
 			if (!player.isDead()) {
 				player.setHealth(player.getMaxHealth());
 				/*
-				double hp = getConfig().getDouble("players." + player.getUniqueId() + ".HP");
-				if (hp == 0.0D) {
-					player.setHealth(sum);
-				}
-				else if (hp > sum) {
-					player.setHealth(sum);
-				}
-				else {
-					player.setHealth(hp);
-				}
-				*/
+				 * double hp = getConfig().getDouble("players." +
+				 * player.getUniqueId() + ".HP"); if (hp == 0.0D) {
+				 * player.setHealth(sum); } else if (hp > sum) {
+				 * player.setHealth(sum); } else { player.setHealth(hp); }
+				 */
 			}
 		}
 		else {

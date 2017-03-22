@@ -7,6 +7,9 @@ permissions: {}
 # How many hearts by default should a player have (Default: 10)
 defaultHearts: 10
 
+# The maximum amount of hearts a player's health can be set to.
+maxHearts: 250
+
 # A list of worlds in which MoreHearts is enabled in. Each entry is separated by a comma.
 enabledIn: world,world_nether,world_the_end
 
@@ -22,11 +25,33 @@ hideHeartsDisplayAmount: 10
 # Should healthbars above each player be enabled? (Default: false)
 enablePlayerHealthbars: false
 
-# Should the healthbars be displayed in hearts or health points? Options are: 'hearts' or 'health' (Default: hearts)
-healthbarUnit: hearts
+# If true, the health displayed in the healthbars will in the form of hearts. Otherwise it will be in the form of health.
+useHeartsAsHealthbarType: true
 
-# Suffix on the healthbars. Options are: 'heart' - Heart symbol, 'HP' - Words "HP", 'none' - No suffix. (Default: heart)
-healthbarSuffix: heart
+# Healthbar suffix. Can be either a symbol or a string (symbol or symbol's unicode is valid).
+# Example: ' \u2764'
+healthbarSuffix: ' &c❤'
 
-# Suffix color. Use MC's color codes.
-healthbarSuffixColor: &c
+# If the healthbar suffix should be used.
+enableHealthbarSuffix: true
+
+# Display the player their health?
+displayHealth: false
+
+# Should the displayed health stay on? Otherwise, fade away. Currently somewhat resource intensive....
+keepDisplayHealthOn: true
+
+# Display health symbol (symbol or symbol's unicode is valid). Can be used with displayHealthFormat.
+displayHealthSymbol: '\u2764'
+
+# What the Display Health format should be.
+# Valid variables are:
+# '{health}' - Current health.
+# '{maxHealth}' - Maximum achievable health.
+# '{hearts}' - Current health in hearts.
+# '{maxHearts}' - Maximum achievable heath in hearts.
+# '{displayHealthSymbol}' - Symbol defined in option above.
+# Any color codes. See http://minecraft.gamepedia.com/Formatting_codes
+#
+# Example: "healthbarFormat: '&c{health} &a/ &c{maxhealth} &bHP'"
+displayHealthFormat: '&c{hearts} &a/ &c{maxHearts} &b{displayHealthSymbol}'
