@@ -7,6 +7,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.file.FileConfiguration;
 
 import com.sqeegie.mh.MoreHearts;
 import com.sqeegie.mh.commands.CommandBase;
@@ -38,7 +39,7 @@ public class ResetCmd extends CommandBase {
 
 	@Override
 	public void execute(CommandSender sender, String cmdName, String[] args) throws CommandException {
-		if (args[1].equals(MoreHearts.getConfiguration().getString("resetPassword"))) {
+		if (args[1].equals(MoreHearts.getInstance().getConfig().getString("resetPassword"))) {
 			// TODO: Fix this bug VVV. Doesn't actually reset without deleting the current config file first.
 			MoreHearts.getInstance().saveDefaultConfig();
 		}

@@ -52,8 +52,8 @@ public class SetHeartsCmd extends CommandBase {
 					return;
 				}
 				
-				MoreHearts.getConfiguration().set("players." + player.getUniqueId() + ".extraHearts", Double.valueOf(finalHeartNumber));
-				MoreHearts.saveConfiguration();
+				MoreHearts.getInstance().getConfig().set("players." + player.getUniqueId() + ".extraHearts", Double.valueOf(finalHeartNumber));
+				MoreHearts.getInstance().saveConfig();
 				MoreHearts.refreshPlayer(player);
 				sender.sendMessage(Colors.SECONDARY + player.getName() + "'s extra hearts set to " + finalHeartNumber);
 			}

@@ -37,7 +37,7 @@ public class RemoveHeartsCmd extends CommandBase {
 	}
 
 	@Override
-	public void execute(CommandSender sender, String cmdName, String[] args) throws CommandException {
+	public void execute(CommandSender sender, String cmdName, String[] args) throws CommandException { // TODO: Check if removing negative numbers. (Fix maxHealth bypass.)
 		OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(args[0]);
 		if (!offlinePlayer.isOnline()) {
 			sender.sendMessage(Colors.ERROR + "The player '" + args[0] + "' isn't online!");
@@ -46,9 +46,9 @@ public class RemoveHeartsCmd extends CommandBase {
 			try {
 				Player player = (Player) offlinePlayer;
 				double extraHeartsToRemove = Double.parseDouble(args[1]);
-				double currentExtraHearts = MoreHearts.getConfiguration().getDouble("players." + player.getUniqueId() + ".extraHearts");
-				MoreHearts.getConfiguration().set("players." + player.getUniqueId() + ".extraHearts", Double.valueOf(currentExtraHearts - extraHeartsToRemove));
-				MoreHearts.saveConfiguration();
+				double currentExtraHearts = MoreHearts.getInstance().getConfig().getDouble("players." + player.getUniqueId() + ".extraHearts");
+				MoreHearts.getInstance().getConfig().set("players." + player.getUniqueId() + ".extraHearts", Double.valueOf(currentExtraHearts - extraHeartsToRemove));
+				MoreHearts.getInstance().saveConfig();
 				MoreHearts.refreshPlayer(player);
 				sender.sendMessage("" + Colors.SECONDARY + extraHeartsToRemove + " hearts has been removed from " + player.getName());
 			}

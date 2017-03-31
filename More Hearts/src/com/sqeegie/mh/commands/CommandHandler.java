@@ -64,7 +64,7 @@ public class CommandHandler implements CommandExecutor {
 				}
 				return true;
 			}
-			if (cmdLabel.equalsIgnoreCase("hearts") || cmdLabel.equalsIgnoreCase("h")) {
+			if (cmdLabel.equalsIgnoreCase("hearts") || cmdLabel.equalsIgnoreCase("h")) { // TODO: Implement "fancyHeartsCmd" feature
 				if (sender instanceof Player) {
 					Player player = MoreHearts.getPlayerByUsername(sender.getName());
 					sender.sendMessage(Colors.MAIN + "You have " + Colors.SECONDARY + player.getHealth() / 2.0D + Colors.MAIN + "/" + Colors.SECONDARY + player.getMaxHealth() / 2.0D + Colors.MAIN + " hearts. (" + Colors.SECONDARY + player.getHealth() + Colors.MAIN + "/" + Colors.SECONDARY + player.getMaxHealth() + Colors.MAIN + " HP!)");

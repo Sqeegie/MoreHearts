@@ -22,26 +22,29 @@ hideHearts: false
 # The amount of hearts that should be displayed if "hideHearts" is enabled. (Default: 10)
 hideHeartsDisplayAmount: 10
 
+# Should the /hearts command use hotbar messages to display health? Automatically sets to false if "keepDisplayHealthOn" is enabled.
+#fancyHeartsCmd: false - NOT IMPLEMENTED
+
 # Should healthbars above each player be enabled? (Default: false)
 enablePlayerHealthbars: false
 
 # If true, the health displayed in the healthbars will in the form of hearts. Otherwise it will be in the form of health.
 useHeartsAsHealthbarType: true
 
-# Healthbar suffix. Can be either a symbol or a string (symbol or symbol's unicode is valid).
+# Healthbar Symbol. Can be either a symbol or a unicode. No text! This gets added to the end of the healthbar if it's enabled.
 # Example: ' \u2764'
-healthbarSuffix: ' &c❤'
+healthbarSymbol: ' &c❤'
 
-# If the healthbar suffix should be used.
-enableHealthbarSuffix: true
+# If the healthbar symbol should be used.
+enableHealthbarSymbol: true
 
 # Display the player their health?
 displayHealth: false
 
-# Should the displayed health stay on? Otherwise, fade away. Currently somewhat resource intensive....
+# Should the displayed health stay on? Otherwise, fade away.
 keepDisplayHealthOn: true
 
-# Display health symbol (symbol or symbol's unicode is valid). Can be used with displayHealthFormat.
+# DisplayHealth symbol. Can be either a symbol or a unicode. No text! Can be used with displayHealthFormat.
 displayHealthSymbol: '\u2764'
 
 # What the Display Health format should be.
@@ -54,4 +57,4 @@ displayHealthSymbol: '\u2764'
 # Any color codes. See http://minecraft.gamepedia.com/Formatting_codes
 #
 # Example: "healthbarFormat: '&c{health} &a/ &c{maxhealth} &bHP'"
-displayHealthFormat: '&c{hearts} &a/ &c{maxHearts} &b{displayHealthSymbol}'
+displayHealthFormat: '&b{hearts} &a/ &b{maxHearts} &c{displayHealthSymbol}'

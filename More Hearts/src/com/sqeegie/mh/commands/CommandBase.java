@@ -34,7 +34,7 @@ public abstract class CommandBase {
 	public final boolean hasPermission(CommandSender sender) {
 		if (permission == null)
 			return true;
-		return sender.hasPermission(permission);
+		return sender.hasPermission("morehearts.*") || sender.hasPermission(permission);
 	}
 
 	public abstract String getPossibleArguments();
