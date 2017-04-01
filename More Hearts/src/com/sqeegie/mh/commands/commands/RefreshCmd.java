@@ -36,8 +36,8 @@ public class RefreshCmd extends CommandBase {
 	@Override
 	public void execute(CommandSender sender, String cmdName, String[] args) throws CommandException { // TODO: Add refresh support to all other config options
 		MoreHearts.getInstance().reloadConfig();
-		MoreHearts.refreshPerms();
-		MoreHearts.refreshWorlds();
+		MoreHearts.getConfiguration().refreshPerms();
+		MoreHearts.getConfiguration().refreshWorlds();
 		MoreHearts.refreshAllPlayers();
 		sender.sendMessage(Colors.SECONDARY + "Everything has been refreshed!");
 	}

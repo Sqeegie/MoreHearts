@@ -1,13 +1,25 @@
 package com.sqeegie.mh;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLConnection;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.command.ConsoleCommandSender;
+import org.bukkit.configuration.Configuration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scoreboard.DisplaySlot;
@@ -15,6 +27,7 @@ import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
 
 import com.sqeegie.mh.commands.CommandHandler;
+import com.sqeegie.mh.configuration.MoreHeartsConfiguration;
 import com.sqeegie.mh.listeners.PlayerListener;
 import com.sqeegie.mh.utils.MoreHeartsUtil;
 
@@ -34,21 +47,16 @@ import com.sqeegie.mh.utils.MoreHeartsUtil;
 // TODO: Add an extra hearts clear command?
 // TODO: Add additional command aliases?
 // TODO: Add more configurability. (Cause why not?)
-// TODO: Decrease the precision of the health value saved to file?
 
 @SuppressWarnings({ "rawtypes", "unchecked", "deprecation" })
 public class MoreHearts extends JavaPlugin {
 
 	private static MoreHearts instance;
+	private MoreHeartsConfiguration config;
 
 	/** Default values */
 	static Logger logger = Logger.getLogger("minecraft");
-	static HashMap<String, Double> perms = new HashMap();
-	static double defaultHearts = 20.0d;
-	static boolean vanishHearts = false;
-	static double vanishHeartsDisplayAmount = defaultHearts;
-	private static ArrayList<String> worlds = new ArrayList();
-	private static String noPerm = ChatColor.RED + "You don't have permission to use this command!";
+	private static String noPermLocale = ChatColor.RED + "You don't have permission to use this command!";
 	private static String version;
 	private Scoreboard scoreBoard;
 
@@ -60,29 +68,32 @@ public class MoreHearts extends JavaPlugin {
 	public void onEnable() {
 		version = getDescription().getVersion();
 		instance = this;
-		instance.saveDefaultConfig();
 
-		log("[MoreHearts] MoreHearts v" + version + " has been enabled!");
-
+		File configFile = new File(this.getDataFolder(), "config.yml");
+		if (!configFile.exists()) {
+			saveDefaultConfig();
+		}
+		Path dataFolder = getDataFolder().toPath();
+		Configuration checkConfig = YamlConfiguration.loadConfiguration(configFile);
+		checkConfigVersions(checkConfig, dataFolder);
+		config = new MoreHeartsConfiguration(getConfig());
+		
 		if (getCommand("morehearts") == null) {
 			logger.severe("Unabled to register commands! Disabling plugin...");
 			instance.setEnabled(false);
 		}
-
 		getCommand("morehearts").setExecutor(new CommandHandler());
 		getCommand("hearts").setExecutor(new CommandHandler());
+		
 		Bukkit.getPluginManager().registerEvents(new PlayerListener(this), this);
 
 		scoreBoard = Bukkit.getScoreboardManager().getMainScoreboard();
 
-		defaultHearts = (instance.getConfig().getDouble("defaultHearts") * 2.0D);
-		vanishHearts = instance.getConfig().getBoolean("hideHearts");
-		vanishHeartsDisplayAmount = (instance.getConfig().getDouble("hideHeartsDisplayAmount") * 2.0D);
-
 		registerHealthBar();
-		refreshPerms();
-		refreshWorlds();
+		config.refreshPerms();
+		config.refreshWorlds();
 		refreshAllPlayers();
+		log("[MoreHearts] MoreHearts v" + version + " has been enabled!");
 	}
 
 	/** Stuff to do when the plugin is being shutdown */
@@ -100,13 +111,7 @@ public class MoreHearts extends JavaPlugin {
 			player.setMaxHealth(20.0D);
 		}
 
-		// Save to config which worlds the plugin is enabled in
-		String ws = (String) worlds.get(0);
-		for (int i = 1; i < worlds.size(); i++) {
-			ws = ws + "," + (String) worlds.get(i);
-		}
-		instance.getConfig().set("enabledIn", ws);
-		saveConfig();
+		config.saveWorlds();
 
 		unregisterHealthBar();
 	}
@@ -120,19 +125,54 @@ public class MoreHearts extends JavaPlugin {
 	}
 
 	public static String getNoPerm() {
-		return noPerm;
+		return noPermLocale;
 	}
 
-	public static ArrayList<String> getWorlds() {
-		return worlds;
+	public static MoreHeartsConfiguration getConfiguration() {
+		return getInstance().config;
 	}
 
-	public static void addWorld(String world) {
-		MoreHearts.worlds.add(world);
+	private void checkConfigVersions(Configuration config, Path dataFolder) {
+		if (config.getInt("config-version", 0) < MoreHeartsConfiguration.CURRENT_CONFIG_VERSION) {
+			Path configSource = dataFolder.resolve(MoreHeartsConfiguration.DESTINATION_FILE_NAME);
+			Path configTarget = dataFolder.resolve("config_old.yml");
+
+			try {
+				Files.move(configSource, configTarget, StandardCopyOption.REPLACE_EXISTING);
+				URL configResource = getClass().getResource(MoreHeartsConfiguration.CLASSPATH_RESOURCE_NAME);
+
+				copyResource(configResource, configSource.toFile());
+
+				ConsoleCommandSender sender = Bukkit.getConsoleSender();
+				sender.sendMessage(ChatColor.RED + "Due to a MoreHearts update your old configuration has been renamed");
+				sender.sendMessage(ChatColor.RED + "to config_old.yml and a new one has been generated. Make sure to");
+				sender.sendMessage(ChatColor.RED + "apply your old changes to the new config");
+			}
+			catch (IOException e) {
+				getLogger().log(Level.SEVERE, "Could not create updated configuration due to an IOException", e);
+			}
+		}
 	}
 
-	public static void removeWorld(String world) {
-		MoreHearts.worlds.remove(world);
+	public static void copyResource(URL resourceUrl, File destination) throws IOException {
+		URLConnection connection = resourceUrl.openConnection();
+
+		if (!destination.exists()) {
+			destination.getParentFile().mkdirs();
+			destination.createNewFile();
+		}
+
+		final int bufferSize = 1024;
+
+		try (InputStream inStream = connection.getInputStream();
+				FileOutputStream outStream = new FileOutputStream(destination)) {
+			byte[] buffer = new byte[bufferSize];
+
+			int read;
+			while ((read = inStream.read(buffer)) > 0) {
+				outStream.write(buffer, 0, read);
+			}
+		}
 	}
 
 	public void registerHealthBar() {
@@ -164,8 +204,8 @@ public class MoreHearts extends JavaPlugin {
 
 	/** Loads a single player's config properties. */
 	public static void refreshPlayer(Player player) {
-		double sum = defaultHearts;
-		if (worlds.contains(player.getWorld().getName())) {
+		double sum = getConfiguration().getDefaultHealth();
+		if (getConfiguration().getWorlds().contains(player.getWorld().getName())) {
 			if (instance.getConfig().contains("players." + player.getUniqueId() + ".extraHearts")) {
 				sum += instance.getConfig().getDouble("players." + player.getUniqueId() + ".extraHearts") * 2.0D;
 			}
@@ -173,17 +213,17 @@ public class MoreHearts extends JavaPlugin {
 				instance.getConfig().set("players." + player.getUniqueId() + ".extraHearts", Integer.valueOf(0));
 				instance.saveConfig();;
 			}
-			for (String str : perms.keySet()) {
+			for (String str : getConfiguration().getPerms().keySet()) {
 				if (player.isPermissionSet(str)) {
-					sum += ((Double) perms.get(str)).doubleValue();
+					sum += ((Double) getConfiguration().getPerms().get(str)).doubleValue();
 				}
 			}
 			player.setMaxHealth(sum);
-			if (sum > defaultHearts) { // Has extra hearts - enable/disable hide hearts for that player
-				player.setHealthScale(vanishHeartsDisplayAmount);
-				player.setHealthScaled(vanishHearts);
+			if (sum > getConfiguration().getDefaultHealth()) { // Has extra hearts - enable/disable hide hearts for that player
+				player.setHealthScale(getConfiguration().getHideHeartAmount());
+				player.setHealthScaled(getConfiguration().isHideHeartsOn());
 			}
-			if (sum < vanishHeartsDisplayAmount) {
+			if (sum < getConfiguration().getHideHeartAmount()) {
 				player.setHealthScale(sum);
 			}
 			if (!player.isDead()) {
@@ -200,45 +240,7 @@ public class MoreHearts extends JavaPlugin {
 			player.setMaxHealth(20.0D);
 		}
 	}
-
-	/** Load custom permission parameters from config */
-	public static void refreshPerms() {
-		perms.clear();
-		for (String str : instance.getConfig().getConfigurationSection("permissions").getKeys(false)) {
-			perms.put("morehearts." + str, Double.valueOf(instance.getConfig().getDouble("permissions." + str) * 2.0D));
-		}
-	}
-
-	/** Save the list of all enabled worlds. */
-	public static void saveWorlds() {
-		String ws = (String) worlds.get(0);
-		for (int a = 1; a < worlds.size(); a++) {
-			ws = ws + "," + (String) worlds.get(a);
-		}
-		instance.getConfig().set("enabledIn", ws);
-		instance.saveConfig();
-	}
-
-	/** Load the list of enabled worlds. */
-	public static void refreshWorlds() {
-		worlds.clear();
-		String ws = instance.getConfig().getString("enabledIn");
-		if (ws != null || !ws.isEmpty()) {
-			if (ws.contains(",")) {
-				String[] Eworlds = ws.split(",");
-				String[] arrayOfString1;
-				int j = (arrayOfString1 = Eworlds).length;
-				for (int i = 0; i < j; i++) {
-					String str = arrayOfString1[i];
-
-					worlds.add(str);
-				}
-			}
-			else {
-				worlds.add(ws);
-			}
-		}
-	}
+	
 
 	/** Loads the list of all players. */
 	public static void refreshAllPlayers() {

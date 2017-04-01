@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
-import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
 import com.sqeegie.mh.MoreHearts;
@@ -40,7 +39,7 @@ public class WorldsCmd extends CommandBase {
 		String str;
 		boolean b = true;
 		sender.sendMessage(Colors.SECONDARY + "MoreHearts is enabled in:");
-		for (Iterator localIterator = MoreHearts.getWorlds().iterator(); localIterator.hasNext();) {
+		for (Iterator<String> localIterator = MoreHearts.getConfiguration().getWorlds().iterator(); localIterator.hasNext();) {
 			str = (String) localIterator.next();
 			if (b) {
 				sender.sendMessage(Colors.MAIN + "- " + str);

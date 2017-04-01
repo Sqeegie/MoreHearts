@@ -1,15 +1,11 @@
 package com.sqeegie.mh.commands.commands;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
-
 import com.sqeegie.mh.MoreHearts;
 import com.sqeegie.mh.commands.CommandBase;
 import com.sqeegie.mh.commands.CommandException;
@@ -41,11 +37,11 @@ public class AddAllWorldsCmd extends CommandBase {
 	@Override
 	public void execute(CommandSender sender, String cmdName, String[] args) throws CommandException {
 		for (World w : Bukkit.getWorlds()) {
-			if (!MoreHearts.getWorlds().contains(w.getName())) {
-				MoreHearts.addWorld(w.getName());
+			if (!MoreHearts.getConfiguration().getWorlds().contains(w.getName())) {
+				MoreHearts.getConfiguration().addWorld(w.getName());
 			}
 			
-			MoreHearts.saveWorlds();
+			MoreHearts.getConfiguration().saveWorlds();
 		}
 		MoreHearts.refreshAllPlayers();
 		sender.sendMessage(Colors.SECONDARY + "MoreHearts has been enabled in all loaded worlds!");

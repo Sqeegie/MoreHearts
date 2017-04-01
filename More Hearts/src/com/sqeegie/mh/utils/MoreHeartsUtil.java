@@ -1,16 +1,12 @@
 package com.sqeegie.mh.utils;
 
-import java.io.File;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.UUID;
+
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.Objective;
 
 import com.sqeegie.mh.MoreHearts;
@@ -36,70 +32,34 @@ public class MoreHeartsUtil {
 		}
 		return (int) d + 1;
 	}
-	
+
 	public static double roundToTenths(double d) {
 		BigDecimal bd = new BigDecimal(d).setScale(1, RoundingMode.HALF_EVEN);
 		d = bd.doubleValue();
 		return d;
 	}
-	
-	public static double roundToNearestHalfTenths(double d) {
-		d = roundToNthPlace(d, 2);
-		String dub = String.valueOf(d);
-		double lastDigits = Double.valueOf(dub.substring(dub.length() - 2));
-		if (lastDigits < 25) {
-			// Round down
-			dub = dub.replace(String.valueOf(lastDigits), "0");
-			d = Double.valueOf(dub);
-		}
-		else if (lastDigits > 25 && lastDigits < 50) {
-			// Round to .50
-			dub = dub.replace(String.valueOf(lastDigits), "5");
-			d = Double.valueOf(dub);
-		}
-		else if (lastDigits == 50) {
-			// Stay the same
-			d = Double.valueOf(dub);
-		}
-		else if (lastDigits > 50 && lastDigits < 75) {
-			// Round to .50
-			dub = dub.replace(String.valueOf(lastDigits), "5");
-			d = Double.valueOf(dub);
-		}
-		else if (lastDigits > 75) {
-			// Round up
-			char[] firstDigit = Character.toChars((int) lastDigits);
-			dub = dub.replace(String.valueOf(lastDigits), String.valueOf(firstDigit[0]));
-			d = Double.valueOf(firstDigit[0]);
-		}
-		return d;
-	}
-	
+
 	public static double roundToNthPlace(double d, int place) {
 		BigDecimal bd = new BigDecimal(d).setScale(place, RoundingMode.HALF_EVEN);
 		d = bd.doubleValue();
 		return d;
 	}
 
-	public static FileConfiguration loadConfig(String path, MoreHearts instance) {
-		if (!path.endsWith(".yml")) {
-			path = path + ".yml";
+	public static Player getPlayerFromUUID(String uuid) {
+		try {
+			return getPlayerFromUUID(UUID.fromString(uuid));
 		}
-		File file = new File(instance.getDataFolder(), path);
-		if (!file.exists()) {
-			try {
-				//instance.saveResource(path, false);
-				instance.saveDefaultConfig();
-			}
-			catch (Exception e) {
-				e.printStackTrace();
-				System.out.println("-------------------------------------------------");
-				System.out.println("[MoreHearts] Cannot save " + path + " to disk!");
-				System.out.println("-------------------------------------------------");
-				return null;
+		catch (IllegalArgumentException e) {
+			return null;
+		}
+	}
+
+	public static Player getPlayerFromUUID(UUID uuid) {
+		for (Player player : Bukkit.getOnlinePlayers()) {
+			if (player.getUniqueId().equals(uuid)) {
+				return player;
 			}
 		}
-		YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
-		return config;
+		return null;
 	}
 }

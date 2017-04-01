@@ -3,12 +3,7 @@ package com.sqeegie.mh.commands.commands;
 import java.util.Arrays;
 import java.util.List;
 
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.World;
 import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.file.FileConfiguration;
-
 import com.sqeegie.mh.MoreHearts;
 import com.sqeegie.mh.commands.CommandBase;
 import com.sqeegie.mh.commands.CommandException;

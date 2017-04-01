@@ -37,6 +37,7 @@ public class RemoveHeartsCmd extends CommandBase {
 	}
 
 	@Override
+	@SuppressWarnings("deprecation")
 	public void execute(CommandSender sender, String cmdName, String[] args) throws CommandException { // TODO: Check if removing negative numbers. (Fix maxHealth bypass.)
 		OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(args[0]);
 		if (!offlinePlayer.isOnline()) {

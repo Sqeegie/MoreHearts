@@ -50,7 +50,7 @@ public class PlayerListener implements Listener {
 	public void onPlayerQuit(PlayerQuitEvent event) {
 		Player player = event.getPlayer();
 		MoreHearts.getInstance().getConfig().set("players." + player.getUniqueId() + ".lastSeenAs", player.getName());
-		if (MoreHearts.getWorlds().contains(player.getWorld().getName())) {
+		if (MoreHearts.getConfiguration().getWorlds().contains(player.getWorld().getName())) {
 			MoreHearts.getInstance().getConfig().set("players." + player.getUniqueId() + ".HP", Double.valueOf(MoreHeartsUtil.roundToNthPlace(player.getHealth(), 2)));
 		}
 		MoreHearts.getInstance().saveConfig();
@@ -63,7 +63,7 @@ public class PlayerListener implements Listener {
 	public void onPlayerKick(PlayerKickEvent event) {
 		Player player = event.getPlayer();
 		MoreHearts.getInstance().getConfig().set("players." + player.getUniqueId() + ".lastSeenAs", player.getName());
-		if (MoreHearts.getWorlds().contains(player.getWorld().getName())) {
+		if (MoreHearts.getConfiguration().getWorlds().contains(player.getWorld().getName())) {
 			MoreHearts.getInstance().getConfig().set("players." + player.getUniqueId() + ".HP", Double.valueOf(MoreHeartsUtil.roundToNthPlace(player.getHealth(), 2)));
 		}
 		MoreHearts.getInstance().saveConfig();
@@ -78,7 +78,7 @@ public class PlayerListener implements Listener {
 	@EventHandler(priority=EventPriority.MONITOR)
 	public void onPlayerTeleport(PlayerTeleportEvent event) {
 		final Player player = event.getPlayer();
-		if (MoreHearts.getWorlds().contains(player.getWorld().getName())) {
+		if (MoreHearts.getConfiguration().getWorlds().contains(player.getWorld().getName())) {
 			MoreHearts.getInstance().getConfig().set("players." + player.getUniqueId() + ".HP", Double.valueOf(MoreHeartsUtil.roundToNthPlace(player.getHealth(), 2)));
 			MoreHearts.getInstance().saveConfig();
 		}
@@ -102,7 +102,7 @@ public class PlayerListener implements Listener {
 	public void onHealthRegain(EntityRegainHealthEvent event) { // TODO: Replace this with a /heal compatible listener.
 		if ((event.getEntity() instanceof Player)) {
 			Player player = (Player) event.getEntity();
-			if (MoreHearts.getWorlds().contains(player.getWorld().getName())) {
+			if (MoreHearts.getConfiguration().getWorlds().contains(player.getWorld().getName())) {
 				MoreHearts.getInstance().getConfig().set("players." + player.getUniqueId() + ".HP", Double.valueOf(MoreHeartsUtil.roundToNthPlace(player.getHealth(), 2)));
 				MoreHearts.getInstance().saveConfig();
 			}
@@ -116,7 +116,7 @@ public class PlayerListener implements Listener {
 	public void onPlayerDamage(EntityDamageEvent event) {
 		if ((event.getEntity() instanceof Player)) {
 			Player player = (Player) event.getEntity();
-			if (MoreHearts.getWorlds().contains(player.getWorld().getName())) {
+			if (MoreHearts.getConfiguration().getWorlds().contains(player.getWorld().getName())) {
 				MoreHearts.getInstance().getConfig().set("players." + player.getUniqueId() + ".HP", Double.valueOf(MoreHeartsUtil.roundToNthPlace(player.getHealth(), 2)));
 				MoreHearts.getInstance().saveConfig();
 			}
@@ -127,7 +127,7 @@ public class PlayerListener implements Listener {
 	@EventHandler(priority=EventPriority.MONITOR)
     public void onPlayerRespawn(PlayerRespawnEvent event) {
         Player player = event.getPlayer();
-        if (MoreHearts.getWorlds().contains(player.getWorld().getName())) {
+        if (MoreHearts.getConfiguration().getWorlds().contains(player.getWorld().getName())) {
             MoreHearts.getInstance().getConfig().set("players." + player.getUniqueId() + ".HP", Double.valueOf(MoreHeartsUtil.roundToNthPlace(player.getHealth(), 2)));
             MoreHearts.getInstance().saveConfig();
         }

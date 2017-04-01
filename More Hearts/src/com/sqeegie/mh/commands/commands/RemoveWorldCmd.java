@@ -3,8 +3,6 @@ package com.sqeegie.mh.commands.commands;
 import java.util.Arrays;
 import java.util.List;
 
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -41,21 +39,21 @@ public class RemoveWorldCmd extends CommandBase {
 		if (args.length == 0 && sender instanceof Player) {
 			Player player = MoreHearts.getPlayerByUsername(sender.getName());
 
-			if (MoreHearts.getWorlds().contains(player.getWorld().getName())) {
-				MoreHearts.removeWorld(player.getWorld().getName());
+			if (MoreHearts.getConfiguration().getWorlds().contains(player.getWorld().getName())) {
+				MoreHearts.getConfiguration().removeWorld(player.getWorld().getName());
 				player.sendMessage(Colors.MAIN + "MoreHearts has been disabled in the world '" + Colors.SECONDARY + player.getWorld().getName() + Colors.MAIN + "'");
 
 				MoreHearts.refreshAllPlayers();
-				MoreHearts.saveWorlds();
+				MoreHearts.getConfiguration().saveWorlds();
 			}
 			else {
 				sender.sendMessage(Colors.ERROR + "MoreHearts is already disabled in this world!");
 			}
 		}
 		else if (args.length > 0) { // Is using optional argument
-			if (MoreHearts.getWorlds().contains(args[0])) {
-				MoreHearts.removeWorld(args[0]);
-				MoreHearts.saveWorlds();
+			if (MoreHearts.getConfiguration().getWorlds().contains(args[0])) {
+				MoreHearts.getConfiguration().removeWorld(args[0]);
+				MoreHearts.getConfiguration().saveWorlds();
 				sender.sendMessage(Colors.MAIN + "MoreHearts has been disabled in the world '" + Colors.SECONDARY + args[0] + Colors.MAIN + "'");
 			}
 			else {

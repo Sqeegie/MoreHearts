@@ -38,6 +38,7 @@ public class AddHeartsCmd extends CommandBase {
 	}
 
 	@Override
+	@SuppressWarnings("deprecation")
 	public void execute(CommandSender sender, String cmdName, String[] args) throws CommandException {	
 		OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(args[0]);
 		if (!offlinePlayer.isOnline()) {

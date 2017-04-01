@@ -24,8 +24,6 @@ import com.sqeegie.mh.utils.Colors;
 
 public class CommandHandler implements CommandExecutor {
 
-	private MoreHearts plugin;
-
 	private List<CommandBase> commands;
 
 	public CommandHandler() {

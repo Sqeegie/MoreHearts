@@ -1,60 +1,67 @@
+# Configuration version. DO NOT CHANGE THIS!
+config-version: 1
+
+global:
+  # How many hearts by default should a player have (Default: 10)
+  defaultHearts: 10
+
+  # The maximum amount of hearts a player's health can be set to.
+  maxHearts: 250
+
+  # A list of worlds in which MoreHearts is enabled in. Each entry is separated by a comma.
+  enabledIn: world,world_nether,world_the_end
+
+  # Password needed to reset the configuration file to the default values. (Default: 465004)
+  resetPassword: 465004
+
+  # Should extra hearts be hidden? (Default: false)
+  hideHearts: false
+
+  # The amount of hearts that should be displayed if "hideHearts" is enabled. (Default: 10)
+  hideHeartsDisplayAmount: 10
+
+  # Should the /hearts command use hotbar messages to display health? Automatically sets to false if "keepDisplayHealthOn" is enabled.
+  #fancyHeartsCmd: false - NOT IMPLEMENTED
+
+  # Should healthbars above each player be enabled? (Default: false)
+  enablePlayerHealthbars: false
+
+  # If true, the health displayed in the healthbars will in the form of hearts. Otherwise it will be in the form of health.
+  useHeartsAsHealthbarType: true
+
+  # Healthbar Symbol. Can be either a symbol or a unicode. No text! This gets added to the end of the healthbar if it's enabled.
+  # Example: ' \u2764'
+  healthbarSymbol: ' &c❤'
+
+  # If the healthbar symbol should be used.
+  enableHealthbarSymbol: true
+
+  # Display the player their health?
+  displayHealth: false
+
+  # Should the displayed health stay on? Otherwise, fade away.
+  keepDisplayHealthOn: false
+
+  # DisplayHealth symbol. Can be either a symbol or a unicode. No text! Can be used with displayHealthFormat.
+  displayHealthSymbol: '\u2764'
+
+  # What the Display Health format should be.
+  # Valid variables are:
+  # '{health}' - Current health.
+  # '{maxHealth}' - Maximum achievable health.
+  # '{hearts}' - Current health in hearts.
+  # '{maxHearts}' - Maximum achievable heath in hearts.
+  # '{displayHealthSymbol}' - Symbol defined in option above.
+  # Any color codes. See http://minecraft.gamepedia.com/Formatting_codes
+  #
+  # Example: "healthbarFormat: '&c{health} &a/ &c{maxhealth} &bHP'"
+  displayHealthFormat: '&b{hearts} &a/ &b{maxHearts} &c{displayHealthSymbol}'
+
+# Custom permissions.
+permissions:
+  VIP: 5
+  admin: 10
+
 # All the players' statistics.
 players: {}
 
-# Custom permissions.
-permissions: {}
-
-# How many hearts by default should a player have (Default: 10)
-defaultHearts: 10
-
-# The maximum amount of hearts a player's health can be set to.
-maxHearts: 250
-
-# A list of worlds in which MoreHearts is enabled in. Each entry is separated by a comma.
-enabledIn: world,world_nether,world_the_end
-
-# Password needed to reset the configuration file to the default values. (Default: 465004)
-resetPassword: 465004
-
-# Should extra hearts be hidden? (Default: false)
-hideHearts: false
-
-# The amount of hearts that should be displayed if "hideHearts" is enabled. (Default: 10)
-hideHeartsDisplayAmount: 10
-
-# Should the /hearts command use hotbar messages to display health? Automatically sets to false if "keepDisplayHealthOn" is enabled.
-#fancyHeartsCmd: false - NOT IMPLEMENTED
-
-# Should healthbars above each player be enabled? (Default: false)
-enablePlayerHealthbars: false
-
-# If true, the health displayed in the healthbars will in the form of hearts. Otherwise it will be in the form of health.
-useHeartsAsHealthbarType: true
-
-# Healthbar Symbol. Can be either a symbol or a unicode. No text! This gets added to the end of the healthbar if it's enabled.
-# Example: ' \u2764'
-healthbarSymbol: ' &c❤'
-
-# If the healthbar symbol should be used.
-enableHealthbarSymbol: true
-
-# Display the player their health?
-displayHealth: false
-
-# Should the displayed health stay on? Otherwise, fade away.
-keepDisplayHealthOn: true
-
-# DisplayHealth symbol. Can be either a symbol or a unicode. No text! Can be used with displayHealthFormat.
-displayHealthSymbol: '\u2764'
-
-# What the Display Health format should be.
-# Valid variables are:
-# '{health}' - Current health.
-# '{maxHealth}' - Maximum achievable health.
-# '{hearts}' - Current health in hearts.
-# '{maxHearts}' - Maximum achievable heath in hearts.
-# '{displayHealthSymbol}' - Symbol defined in option above.
-# Any color codes. See http://minecraft.gamepedia.com/Formatting_codes
-#
-# Example: "healthbarFormat: '&c{health} &a/ &c{maxhealth} &bHP'"
-displayHealthFormat: '&b{hearts} &a/ &b{maxHearts} &c{displayHealthSymbol}'
