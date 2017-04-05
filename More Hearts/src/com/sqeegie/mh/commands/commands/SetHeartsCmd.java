@@ -48,7 +48,7 @@ public class SetHeartsCmd extends CommandBase {
 				Player player = (Player) offlinePlayer;
 				double finalHeartNumber = Double.parseDouble(args[1]);
 				
-				if (finalHeartNumber > MoreHearts.getInstance().getConfig().getInt("maxHearts")) {
+				if (finalHeartNumber > MoreHearts.getConfiguration().getMaxHearts()) {
 					sender.sendMessage("" + Colors.ERROR + "Cannot set the health to that! The maximum number of hearts is " + MoreHearts.getInstance().getConfig().getInt("maxHearts"));
 					return;
 				}

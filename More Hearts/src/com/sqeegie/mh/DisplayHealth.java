@@ -21,12 +21,12 @@ public class DisplayHealth {
 	}
 
 	public static void sendUpdate(Player player) {
-		if (MoreHearts.getInstance().getConfig().getBoolean("displayHealth")) { // If display health is enabled
-			if (MoreHearts.getInstance().getConfig().getBoolean("keepDisplayHealthOn")) {
+		if (MoreHearts.getConfiguration().isDisplayHealthEnabled()) { // If display health is enabled
+			if (MoreHearts.getConfiguration().keepDisplayHealthOn()) {
 				if (!runnables.contains(player)) {
 					new BukkitRunnable() {
 						public void run() {
-							sendDisplayHealth(player, MoreHearts.getInstance().getConfig().getString("displayHealthFormat"));
+							sendDisplayHealth(player, MoreHearts.getConfiguration().getDisplayHealthFormat());
 						}
 					}.runTaskLater(MoreHearts.getInstance(), 1L);
 				}
@@ -34,7 +34,7 @@ public class DisplayHealth {
 			else {
 				new BukkitRunnable() {
 					public void run() {
-						sendDisplayHealth(player, MoreHearts.getInstance().getConfig().getString("displayHealthFormat"));
+						sendDisplayHealth(player, MoreHearts.getConfiguration().getDisplayHealthFormat());
 					}
 				}.runTaskLater(MoreHearts.getInstance(), 1L);
 			}
@@ -43,11 +43,11 @@ public class DisplayHealth {
 
 	private static void sendDisplayHealth(Player player, String message) {
 		// Formatting
-		String displayHealthSymbol = MoreHearts.getInstance().getConfig().getString("displayHealthSymbol");
+		String displayHealthSymbol = MoreHearts.getConfiguration().getDisplayHealthSymbol();
 		Integer code = Integer.parseInt(displayHealthSymbol.substring(2), 16);
 		char character = Character.toChars(code)[0];
 		
-		double maxHealth = MoreHearts.getInstance().getConfig().getDouble("defaultHearts") * 2.0d;
+		double maxHealth = MoreHearts.getConfiguration().getDefaultHealth();
 		if (MoreHearts.getInstance().getConfig().contains("players." + player.getUniqueId() + ".extraHearts")) {
 			if (MoreHearts.getInstance().getConfig().getDouble("players." + player.getUniqueId() + ".extraHearts") != 0) {
 				maxHealth += MoreHearts.getInstance().getConfig().getDouble("players." + player.getUniqueId() + ".extraHearts") * 2.0d;	
@@ -93,7 +93,7 @@ public class DisplayHealth {
 			Method m5 = pc.getClass().getDeclaredMethod("sendPacket", c5);
 			m5.invoke(pc, ppoc);
 			
-			if (MoreHearts.getInstance().getConfig().getBoolean("keepDisplayHealthOn")) {
+			if (MoreHearts.getConfiguration().keepDisplayHealthOn()) {
 				if (Bukkit.getOnlinePlayers().contains(player)) {
 					if (!runnables.contains(player)) {
 						runnables.add(player);
@@ -101,7 +101,7 @@ public class DisplayHealth {
 					
 					new BukkitRunnable() {
 						public void run() {
-							sendDisplayHealth(player, MoreHearts.getInstance().getConfig().getString("displayHealthFormat"));
+							sendDisplayHealth(player, MoreHearts.getConfiguration().getDisplayHealthFormat());
 						}
 					}.runTaskLater(MoreHearts.getInstance(), 10L); // Aprox. 250ms refresh
 				}

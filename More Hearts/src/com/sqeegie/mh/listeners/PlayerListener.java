@@ -91,8 +91,6 @@ public class PlayerListener implements Listener {
 			}
 		}, 1L);
 		*/ 
-		
-		MoreHearts.log("onPlayerTeleport");
 		DisplayHealth.sendUpdate(player);
 		MoreHeartsUtil.refreshHealthbar();
 	}

@@ -50,7 +50,7 @@ public class AddHeartsCmd extends CommandBase {
 				double extraHeartsToAdd = Double.parseDouble(args[1]);
 				double currentExtraHearts = MoreHearts.getInstance().getConfig().getDouble("players." + player.getUniqueId() + ".extraHearts");
 				
-				double maxHealthCheck = MoreHearts.getInstance().getConfig().getInt("maxHearts");
+				double maxHealthCheck = MoreHearts.getConfiguration().getMaxHearts();
 				double newMaxHealth = MoreHeartsUtil.roundToNearest(extraHeartsToAdd + currentExtraHearts);
 				if (newMaxHealth > maxHealthCheck) {
 					sender.sendMessage("" + Colors.ERROR + "Cannot add that many hearts! The maximum number of hearts is " + maxHealthCheck);

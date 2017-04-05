@@ -2,16 +2,9 @@ package com.sqeegie.mh.configuration;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.UUID;
-
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.entity.Player;
-
 import com.sqeegie.mh.MoreHearts;
-import com.sqeegie.mh.utils.MoreHeartsUtil;
 
 public class MoreHeartsConfiguration {
 	public static final int CURRENT_CONFIG_VERSION = 1;
@@ -41,7 +34,7 @@ public class MoreHeartsConfiguration {
 	}
 
 	public void loadByConfiguration(Configuration config) {
-
+		
 		ConfigurationSection globalSection = config.getConfigurationSection("global");
 		defaultHealth = globalSection.getInt("defaultHearts", 10) * 2;
 		maxHearts = globalSection.getInt("maxHearts", 250);
@@ -100,7 +93,7 @@ public class MoreHeartsConfiguration {
 		for (int a = 1; a < worlds.size(); a++) {
 			ws = ws + "," + (String) worlds.get(a);
 		}
-		MoreHearts.getInstance().getConfig().set("enabledIn", ws);
+		MoreHearts.getInstance().getConfig().getConfigurationSection("global").set("enabledIn", ws);
 		MoreHearts.getInstance().saveConfig();
 	}
 
@@ -139,11 +132,51 @@ public class MoreHeartsConfiguration {
 		return defaultHealth;
 	}
 	
+	public int getMaxHearts() {
+		return maxHearts;
+	}
+	
 	public double getHideHeartAmount() {
 		return hideHeartAmount;
 	}
 	
-	public boolean isHideHeartsOn() {
+	public boolean isHideHeartsEnabled() {
 		return hideHearts;
+	}
+	
+	public boolean isDisplayHealthEnabled() {
+		return displayHealth;
+	}
+	
+	public boolean keepDisplayHealthOn() {
+		return keepDisplayHealthOn;
+	}
+	
+	public String getDisplayHealthFormat() {
+		return displayHealthFormat;
+	}
+	
+	public String getDisplayHealthSymbol() {
+		return displayHealthSymbol;
+	}
+	
+	public boolean heartsAsHealthbarType() {
+		return heartsAsHealthbarType;
+	}
+	
+	public boolean isHealthbarsEnabled() {
+		return enableHealthbars;
+	}
+	
+	public String getHealthbarSymbol() {
+		return healthbarSymbol;
+	}
+	
+	public int getResetPassword() {
+		return resetPassword;
+	}
+	
+	public boolean isHealthbarSymbolEnabled() {
+		return enableHealthbarSymbol;
 	}
 }

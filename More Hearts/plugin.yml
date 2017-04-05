@@ -1,5 +1,5 @@
 name: MoreHearts
-version: 2.4.3
+version: 2.4.3-pre3
 Description: Adds the ability to set custom hearts/health amounts for each player.
 main: com.sqeegie.mh.MoreHearts
 Author: roei12, Sqeegie

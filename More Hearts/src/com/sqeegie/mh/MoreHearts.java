@@ -19,6 +19,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.configuration.Configuration;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -48,7 +49,7 @@ import com.sqeegie.mh.utils.MoreHeartsUtil;
 // TODO: Add additional command aliases?
 // TODO: Add more configurability. (Cause why not?)
 
-@SuppressWarnings({ "rawtypes", "unchecked", "deprecation" })
+@SuppressWarnings({ "deprecation" })
 public class MoreHearts extends JavaPlugin {
 
 	private static MoreHearts instance;
@@ -77,14 +78,14 @@ public class MoreHearts extends JavaPlugin {
 		Configuration checkConfig = YamlConfiguration.loadConfiguration(configFile);
 		checkConfigVersions(checkConfig, dataFolder);
 		config = new MoreHeartsConfiguration(getConfig());
-		
+
 		if (getCommand("morehearts") == null) {
 			logger.severe("Unabled to register commands! Disabling plugin...");
 			instance.setEnabled(false);
 		}
 		getCommand("morehearts").setExecutor(new CommandHandler());
 		getCommand("hearts").setExecutor(new CommandHandler());
-		
+
 		Bukkit.getPluginManager().registerEvents(new PlayerListener(this), this);
 
 		scoreBoard = Bukkit.getScoreboardManager().getMainScoreboard();
@@ -133,7 +134,7 @@ public class MoreHearts extends JavaPlugin {
 	}
 
 	private void checkConfigVersions(Configuration config, Path dataFolder) {
-		if (config.getInt("config-version", 0) < MoreHeartsConfiguration.CURRENT_CONFIG_VERSION) {
+		if (!config.contains("config-version") || config.getInt("config-version", 0) < MoreHeartsConfiguration.CURRENT_CONFIG_VERSION) {
 			Path configSource = dataFolder.resolve(MoreHeartsConfiguration.DESTINATION_FILE_NAME);
 			Path configTarget = dataFolder.resolve("config_old.yml");
 
@@ -142,11 +143,13 @@ public class MoreHearts extends JavaPlugin {
 				URL configResource = getClass().getResource(MoreHeartsConfiguration.CLASSPATH_RESOURCE_NAME);
 
 				copyResource(configResource, configSource.toFile());
-
+				
+				//portConfig();
+				
 				ConsoleCommandSender sender = Bukkit.getConsoleSender();
 				sender.sendMessage(ChatColor.RED + "Due to a MoreHearts update your old configuration has been renamed");
 				sender.sendMessage(ChatColor.RED + "to config_old.yml and a new one has been generated. Make sure to");
-				sender.sendMessage(ChatColor.RED + "apply your old changes to the new config");
+				sender.sendMessage(ChatColor.RED + "check that your old options ported succesfully to the new config.");
 			}
 			catch (IOException e) {
 				getLogger().log(Level.SEVERE, "Could not create updated configuration due to an IOException", e);
@@ -175,15 +178,60 @@ public class MoreHearts extends JavaPlugin {
 		}
 	}
 
+	public static void portConfig() {
+		
+		InputStream configStream = getInstance().getResource("config_old.yml");
+		YamlConfiguration yamlConfig = YamlConfiguration.loadConfiguration(configStream);
+		
+		if (!yamlConfig.contains("config-version")) { // Really old config
+			// Port global options
+			ConfigurationSection globalSection = getInstance().getConfig().getConfigurationSection("global");
+			
+			globalSection.set("defaultHearts", yamlConfig.getInt("defaultHearts", 10)); 
+			globalSection.set("maxHearts", yamlConfig.getInt("maxHearts", 250));
+			globalSection.set("resetPassword", yamlConfig.getInt("resetPassword", 465004));
+			globalSection.set("hideHearts", yamlConfig.getBoolean("hideHearts", false));
+			globalSection.set("hideHeartsDisplayAmount", yamlConfig.getDouble("hideHeartsDisplayAmount", 10));
+			globalSection.set("enablePlayerHealthbars", yamlConfig.getBoolean("enablePlayerHealthbars", false));
+			globalSection.set("useHeartsAsHealthbarType", yamlConfig.getBoolean("useHeartsAsHealthbarType", true));
+			globalSection.set("healthbarSymbol", yamlConfig.getString("healthbarSymbol", " &c❤"));
+			globalSection.set("enableHealthbarSymbol", yamlConfig.getBoolean("enableHealthbarSymbol", true));
+			globalSection.set("displayHealth", yamlConfig.getBoolean("displayHealth", false));
+			globalSection.set("keepDisplayHealthOn", yamlConfig.getBoolean("keepDisplayHealthOn", false));
+			globalSection.set("displayHealthSymbol", yamlConfig.getString("displayHealthSymbol", "\u2764"));
+			globalSection.set("displayHealthFormat", yamlConfig.getString("displayHealthFormat", "&b{hearts} &a/ &b{maxHearts} &c{displayHealthSymbol}"));
+			
+			// Port permissions
+			ConfigurationSection permSectionOld = yamlConfig.getConfigurationSection("permissions");
+			ConfigurationSection permSection = getInstance().getConfig().getConfigurationSection("permissions");
+			for (String permName : permSectionOld.getKeys(false)) {
+				permSection.set(permName, permSectionOld.get(permName));
+			}
+			
+			// Port players
+			ConfigurationSection playerSectionOld = yamlConfig.getConfigurationSection("players");
+			ConfigurationSection playerSection = getInstance().getConfig().getConfigurationSection("players");
+			for (String uuid : playerSectionOld.getKeys(false)) {
+				playerSection.set(uuid + ".lastSeenAs", playerSectionOld.get(uuid + ".lastSeenAs", ""));
+				playerSection.set(uuid + ".HP", playerSectionOld.get(uuid + ".HP", 20.0d));
+				playerSection.set(uuid + ".extraHearts", playerSectionOld.get(uuid + ".extraHearts", 0));
+			}
+			
+			// Only run when updating from v2.4.2 - v2.4.3.
+			// Get options from old config and port to new config
+			// Get players from old config and move to separate file for each	
+		}
+	}
+	
 	public void registerHealthBar() {
 		if (this.scoreBoard.getObjective("health") != null) {
 			this.scoreBoard.getObjective("health").unregister();
 		}
-		if (getConfig().getBoolean("enablePlayerHealthbars")) {
+		if (getConfiguration().isHealthbarsEnabled()) {
 			Objective o = this.scoreBoard.registerNewObjective("health", "health");
 			MoreHeartsUtil.o = o;
-			if (getConfig().getBoolean("enableHealthbarSymbol"))
-				o.setDisplayName(MoreHeartsUtil.replaceSymbols(getConfig().getString("healthbarSymbol")));
+			if (getConfiguration().isHealthbarSymbolEnabled())
+				o.setDisplayName(MoreHeartsUtil.replaceSymbols(getConfiguration().getHealthbarSymbol()));
 			MoreHeartsUtil.refreshHealthbar();
 			o.setDisplaySlot(DisplaySlot.BELOW_NAME);
 		}
@@ -207,7 +255,7 @@ public class MoreHearts extends JavaPlugin {
 		double sum = getConfiguration().getDefaultHealth();
 		if (getConfiguration().getWorlds().contains(player.getWorld().getName())) {
 			if (instance.getConfig().contains("players." + player.getUniqueId() + ".extraHearts")) {
-				sum += instance.getConfig().getDouble("players." + player.getUniqueId() + ".extraHearts") * 2.0D;
+				sum += instance.getConfig().getDouble("players." + player.getUniqueId() + ".extraHearts") * 2.0d;
 			}
 			else {
 				instance.getConfig().set("players." + player.getUniqueId() + ".extraHearts", Integer.valueOf(0));
@@ -215,19 +263,19 @@ public class MoreHearts extends JavaPlugin {
 			}
 			for (String str : getConfiguration().getPerms().keySet()) {
 				if (player.isPermissionSet(str)) {
-					sum += ((Double) getConfiguration().getPerms().get(str)).doubleValue();
+					sum += ((Double) getConfiguration().getPerms().get(str)).doubleValue() * 2.0d;
 				}
 			}
 			player.setMaxHealth(sum);
 			if (sum > getConfiguration().getDefaultHealth()) { // Has extra hearts - enable/disable hide hearts for that player
-				player.setHealthScale(getConfiguration().getHideHeartAmount());
-				player.setHealthScaled(getConfiguration().isHideHeartsOn());
+				player.setHealthScale(getConfiguration().getHideHeartAmount() * 2.0d);
+				player.setHealthScaled(getConfiguration().isHideHeartsEnabled());
 			}
 			if (sum < getConfiguration().getHideHeartAmount()) {
 				player.setHealthScale(sum);
 			}
 			if (!player.isDead()) {
-				player.setHealth(player.getMaxHealth());
+				//player.setHealth(player.getMaxHealth());
 				/*
 				 * double hp = getConfig().getDouble("players." +
 				 * player.getUniqueId() + ".HP"); if (hp == 0.0D) {
@@ -240,7 +288,6 @@ public class MoreHearts extends JavaPlugin {
 			player.setMaxHealth(20.0D);
 		}
 	}
-	
 
 	/** Loads the list of all players. */
 	public static void refreshAllPlayers() {

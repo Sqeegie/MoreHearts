@@ -15,9 +15,15 @@ public class MoreHeartsUtil {
 	public static Objective o;
 
 	public static void refreshHealthbar() {
-		if (MoreHearts.getInstance().getConfig().getBoolean("useHeartsAsHealthbarType")) { // TODO: Fix this... Not working for some reason.
-			int health = o.getScore("health").getScore();
-			o.getScore("health").setScore(MoreHeartsUtil.roundToNearest(health / 2));
+		if (MoreHearts.getConfiguration().isHealthbarsEnabled()) {
+			if (MoreHearts.getConfiguration().heartsAsHealthbarType()) { // TODO: Fix this... Not working for some reason.
+				int health = o.getScore("health").getScore();
+				o.getScore("health").setScore(roundToNearest(health / 2));
+			}
+			else {
+				int health = o.getScore("health").getScore();
+				o.getScore("health").setScore(roundToNearest(health));
+			}
 		}
 	}
 
