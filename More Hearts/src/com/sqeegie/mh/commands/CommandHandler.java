@@ -92,7 +92,7 @@ public class CommandHandler implements CommandExecutor {
 					}
 				}
 				else {
-					sender.sendMessage(Colors.ERROR + "Usage: /" + cmd + " " + command.getName() + " " + command.getPossibleArguments());
+					sender.sendMessage(Colors.ERROR + "Usage: /" + cmdLabel + " " + command.getName() + " " + command.getPossibleArguments());
 				}
 				return true;
 			}

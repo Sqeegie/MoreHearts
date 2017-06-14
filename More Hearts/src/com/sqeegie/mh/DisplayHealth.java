@@ -11,8 +11,10 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import com.sqeegie.mh.utils.MoreHeartsUtil;
 
+import net.minecraft.server.v1_12_R1.ChatMessageType;
+
 public class DisplayHealth {
-	private static ArrayList<Player> runnables = new ArrayList<Player>();
+	public static ArrayList<Player> runnables = new ArrayList<Player>();
 
 	public static void removeRunnable(Player player) {
 		if (runnables.contains(player)) {
@@ -41,7 +43,7 @@ public class DisplayHealth {
 		}
 	}
 
-	private static void sendDisplayHealth(Player player, String message) {
+	public static void sendDisplayHealth(Player player, String message) {
 		// Formatting
 		String displayHealthSymbol = MoreHearts.getConfiguration().getDisplayHealthSymbol();
 		Integer code = Integer.parseInt(displayHealthSymbol.substring(2), 16);
@@ -62,28 +64,34 @@ public class DisplayHealth {
 		mcVersion = mcVersion.substring(mcVersion.lastIndexOf(".") + 1);
 		SERVER_VERSION = mcVersion;
 
-		final boolean useOldMethods = SERVER_VERSION.equalsIgnoreCase("v1_8_R1") || SERVER_VERSION.equalsIgnoreCase("v1_7_");
-
+		final boolean useAncientMethods = SERVER_VERSION.equalsIgnoreCase("v1_8_R1") || SERVER_VERSION.contains("v1_7_");
+		
 		// Send packet
 		try {
+			
+			
 			Class<?> c1 = Class.forName("org.bukkit.craftbukkit." + SERVER_VERSION + ".entity.CraftPlayer");
 			Object p = c1.cast(player);
 			Object ppoc;
 			Class<?> c4 = Class.forName("net.minecraft.server." + SERVER_VERSION + ".PacketPlayOutChat");
 			Class<?> c5 = Class.forName("net.minecraft.server." + SERVER_VERSION + ".Packet");
-
-			if (useOldMethods) {
+			
+			if (SERVER_VERSION.contains("v1_8_") || SERVER_VERSION.contains("v1_7_")) { // 1.7, 1.8
 				Class<?> c2 = Class.forName("net.minecraft.server." + SERVER_VERSION + ".ChatSerializer");
 				Class<?> c3 = Class.forName("net.minecraft.server." + SERVER_VERSION + ".IChatBaseComponent");
 				Method m3 = c2.getDeclaredMethod("a", String.class);
 				Object cbc = c3.cast(m3.invoke(c2, "{\"text\": \"" + message + "\"}"));
 				ppoc = c4.getConstructor(new Class<?>[] { c3, byte.class }).newInstance(cbc, (byte) 2);
 			}
-			else {
+			else if (SERVER_VERSION.contains("v1_9_") || SERVER_VERSION.contains("v1_10_") || SERVER_VERSION.contains("v1_11_")) { // 1.9, 1.10, 1.11
 				Class<?> c2 = Class.forName("net.minecraft.server." + SERVER_VERSION + ".ChatComponentText");
 				Class<?> c3 = Class.forName("net.minecraft.server." + SERVER_VERSION + ".IChatBaseComponent");
 				Object o = c2.getConstructor(new Class<?>[] { String.class }).newInstance(message);
 				ppoc = c4.getConstructor(new Class<?>[] { c3, byte.class }).newInstance(o, (byte) 2);
+			}
+			else { // 1.12
+				new DisplayNew(player, message); // Quick fix
+				return;
 			}
 
 			Method m1 = c1.getDeclaredMethod("getHandle");

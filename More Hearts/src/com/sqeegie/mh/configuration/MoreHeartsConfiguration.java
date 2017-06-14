@@ -50,8 +50,6 @@ public class MoreHeartsConfiguration {
 		displayHealthSymbol = globalSection.getString("displayHealthSymbol", "\u2764");
 		displayHealthFormat = globalSection.getString("displayHealthFormat", "&b{hearts} &a/ &b{maxHearts} &c{displayHealthSymbol}");
 
-
-
 		ConfigurationSection permSection = config.getConfigurationSection("permissions");
 		for (String str : permSection.getKeys(false)) {
 			perms.put("morehearts." + str, Double.valueOf(permSection.getDouble("permissions." + str) * 2.0D));
@@ -67,6 +65,11 @@ public class MoreHeartsConfiguration {
 		*/
 		
 		config.getInt("config-version", 0);
+		
+		if (maxHearts > 1024) {
+			maxHearts = 1024;
+			MoreHearts.log("maxHearts is set to something greater than MC's limit of 1024! Setting maximum hearts to 1024...");
+		}
 		
 	}
 

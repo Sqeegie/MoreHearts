@@ -49,14 +49,14 @@ public class SetHeartsCmd extends CommandBase {
 				double finalHeartNumber = Double.parseDouble(args[1]);
 				
 				if (finalHeartNumber > MoreHearts.getConfiguration().getMaxHearts()) {
-					sender.sendMessage("" + Colors.ERROR + "Cannot set the health to that! The maximum number of hearts is " + MoreHearts.getInstance().getConfig().getInt("maxHearts"));
+					sender.sendMessage("" + Colors.ERROR + "Cannot set the hearts to that! The maximum number of hearts is " + MoreHearts.getConfiguration().getMaxHearts());
 					return;
 				}
 				
 				MoreHearts.getInstance().getConfig().set("players." + player.getUniqueId() + ".extraHearts", Double.valueOf(finalHeartNumber));
 				MoreHearts.getInstance().saveConfig();
 				MoreHearts.refreshPlayer(player);
-				sender.sendMessage(Colors.SECONDARY + player.getName() + "'s extra hearts set to " + finalHeartNumber);
+				sender.sendMessage(Colors.SECONDARY + player.getName() + "'s hearts set to " + finalHeartNumber);
 			}
 			catch (Exception e) {
 				sender.sendMessage(Colors.ERROR + "Something went wrong! Did you enter a word instead of a number? Or try setting the health to below zero?");

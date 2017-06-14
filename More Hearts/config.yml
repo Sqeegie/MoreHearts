@@ -9,7 +9,7 @@ global:
   # How many hearts by default should a player have (Default: 10)
   defaultHearts: 10
 
-  # The maximum amount of hearts a player's health can be set to.
+  # The maximum amount of hearts a player's health can be set to. The max MC can handle is 1024.
   maxHearts: 250
 
   # A list of worlds in which MoreHearts is enabled in. Each entry is separated by a comma.

@@ -4,12 +4,14 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
@@ -62,7 +64,7 @@ public class MoreHearts extends JavaPlugin {
 	private Scoreboard scoreBoard;
 
 	public static void log(String logs) {
-		logger.info(logs);
+		logger.info("[MoreHearts] " + logs);
 	}
 
 	/** Stuff to do when the plugin is being started */
@@ -94,19 +96,16 @@ public class MoreHearts extends JavaPlugin {
 		config.refreshPerms();
 		config.refreshWorlds();
 		refreshAllPlayers();
-		log("[MoreHearts] MoreHearts v" + version + " has been enabled!");
+		log("MoreHearts v" + version + " has been enabled!");
 	}
 
 	/** Stuff to do when the plugin is being shutdown */
 	public void onDisable() {
-		log("[MoreHearts] MoreHearts v" + getDescription().getVersion() + " has been disabled!");
+		log("MoreHearts v" + getDescription().getVersion() + " has been disabled!");
 
 		// Reset everybody's health back to MC's default
-		Player[] arrayOfPlayers = Bukkit._INVALID_getOnlinePlayers();
-		int numOfPlayers = arrayOfPlayers.length;
-		for (int i = 0; i < numOfPlayers; i++) {
-			Player player = arrayOfPlayers[i];
-
+		Collection<? extends Player> collectionOfPlayers = Bukkit.getOnlinePlayers();
+		for (Player player : collectionOfPlayers) {
 			instance.getConfig().set("players." + player.getUniqueId() + ".lastSeenAs", player.getName());
 			instance.getConfig().set("players." + player.getUniqueId() + ".HP", Double.valueOf(MoreHeartsUtil.roundToNthPlace(player.getHealth(), 2)));
 			player.setMaxHealth(20.0D);
@@ -144,12 +143,14 @@ public class MoreHearts extends JavaPlugin {
 
 				copyResource(configResource, configSource.toFile());
 				
+				instance.saveDefaultConfig(); // Temporary solution until automatic config porting is finished
+				
 				//portConfig();
 				
 				ConsoleCommandSender sender = Bukkit.getConsoleSender();
 				sender.sendMessage(ChatColor.RED + "Due to a MoreHearts update your old configuration has been renamed");
 				sender.sendMessage(ChatColor.RED + "to config_old.yml and a new one has been generated. Make sure to");
-				sender.sendMessage(ChatColor.RED + "check that your old options ported succesfully to the new config.");
+				sender.sendMessage(ChatColor.RED + "reconfigure MoreHearts to your previous setup.");
 			}
 			catch (IOException e) {
 				getLogger().log(Level.SEVERE, "Could not create updated configuration due to an IOException", e);
@@ -181,7 +182,7 @@ public class MoreHearts extends JavaPlugin {
 	public static void portConfig() {
 		
 		InputStream configStream = getInstance().getResource("config_old.yml");
-		YamlConfiguration yamlConfig = YamlConfiguration.loadConfiguration(configStream);
+		YamlConfiguration yamlConfig = YamlConfiguration.loadConfiguration(new InputStreamReader(configStream));
 		
 		if (!yamlConfig.contains("config-version")) { // Really old config
 			// Port global options
@@ -291,11 +292,9 @@ public class MoreHearts extends JavaPlugin {
 
 	/** Loads the list of all players. */
 	public static void refreshAllPlayers() {
-		Player[] arrayOfPlayers = Bukkit._INVALID_getOnlinePlayers();
-		int numOfPlayers = arrayOfPlayers.length;
-		for (int i = 0; i < numOfPlayers; i++) {
-			Player players = arrayOfPlayers[i];
-			refreshPlayer(players);
+		Collection<? extends Player> collectionOfPlayers = Bukkit.getOnlinePlayers();
+		for (Player player : collectionOfPlayers) {
+			refreshPlayer(player);
 		}
 	}
 
