@@ -53,6 +53,6 @@ public class WorldsCmd extends CommandBase {
 
 	@Override
 	public List<String> getDescription() {
-		return Arrays.asList("Displays a list of all the worlds MoreHearts is enabled in.");
+		return Arrays.asList("Displays all the worlds MoreHearts is enabled in.");
 	}
 }

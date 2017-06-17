@@ -142,11 +142,11 @@ public class MoreHearts extends JavaPlugin {
 				URL configResource = getClass().getResource(MoreHeartsConfiguration.CLASSPATH_RESOURCE_NAME);
 
 				copyResource(configResource, configSource.toFile());
-				
+
 				instance.saveDefaultConfig(); // Temporary solution until automatic config porting is finished
-				
+
 				//portConfig();
-				
+
 				ConsoleCommandSender sender = Bukkit.getConsoleSender();
 				sender.sendMessage(ChatColor.RED + "Due to a MoreHearts update your old configuration has been renamed");
 				sender.sendMessage(ChatColor.RED + "to config_old.yml and a new one has been generated. Make sure to");
@@ -180,15 +180,15 @@ public class MoreHearts extends JavaPlugin {
 	}
 
 	public static void portConfig() {
-		
+
 		InputStream configStream = getInstance().getResource("config_old.yml");
 		YamlConfiguration yamlConfig = YamlConfiguration.loadConfiguration(new InputStreamReader(configStream));
-		
+
 		if (!yamlConfig.contains("config-version")) { // Really old config
 			// Port global options
 			ConfigurationSection globalSection = getInstance().getConfig().getConfigurationSection("global");
-			
-			globalSection.set("defaultHearts", yamlConfig.getInt("defaultHearts", 10)); 
+
+			globalSection.set("defaultHearts", yamlConfig.getInt("defaultHearts", 10));
 			globalSection.set("maxHearts", yamlConfig.getInt("maxHearts", 250));
 			globalSection.set("resetPassword", yamlConfig.getInt("resetPassword", 465004));
 			globalSection.set("hideHearts", yamlConfig.getBoolean("hideHearts", false));
@@ -201,14 +201,14 @@ public class MoreHearts extends JavaPlugin {
 			globalSection.set("keepDisplayHealthOn", yamlConfig.getBoolean("keepDisplayHealthOn", false));
 			globalSection.set("displayHealthSymbol", yamlConfig.getString("displayHealthSymbol", "\u2764"));
 			globalSection.set("displayHealthFormat", yamlConfig.getString("displayHealthFormat", "&b{hearts} &a/ &b{maxHearts} &c{displayHealthSymbol}"));
-			
+
 			// Port permissions
 			ConfigurationSection permSectionOld = yamlConfig.getConfigurationSection("permissions");
 			ConfigurationSection permSection = getInstance().getConfig().getConfigurationSection("permissions");
 			for (String permName : permSectionOld.getKeys(false)) {
 				permSection.set(permName, permSectionOld.get(permName));
 			}
-			
+
 			// Port players
 			ConfigurationSection playerSectionOld = yamlConfig.getConfigurationSection("players");
 			ConfigurationSection playerSection = getInstance().getConfig().getConfigurationSection("players");
@@ -217,13 +217,13 @@ public class MoreHearts extends JavaPlugin {
 				playerSection.set(uuid + ".HP", playerSectionOld.get(uuid + ".HP", 20.0d));
 				playerSection.set(uuid + ".extraHearts", playerSectionOld.get(uuid + ".extraHearts", 0));
 			}
-			
+
 			// Only run when updating from v2.4.2 - v2.4.3.
 			// Get options from old config and port to new config
 			// Get players from old config and move to separate file for each	
 		}
 	}
-	
+
 	public void registerHealthBar() {
 		if (this.scoreBoard.getObjective("health") != null) {
 			this.scoreBoard.getObjective("health").unregister();
@@ -253,29 +253,35 @@ public class MoreHearts extends JavaPlugin {
 
 	/** Loads a single player's config properties. */
 	public static void refreshPlayer(Player player) {
-		double sum = getConfiguration().getDefaultHealth();
-		if (getConfiguration().getWorlds().contains(player.getWorld().getName())) {
-			if (instance.getConfig().contains("players." + player.getUniqueId() + ".extraHearts")) {
-				sum += instance.getConfig().getDouble("players." + player.getUniqueId() + ".extraHearts") * 2.0d;
+		double health = getConfiguration().getDefaultHealth();
+
+		if (getConfiguration().getWorlds().contains(player.getWorld().getName())) { // MH is enabled in the world the player is in
+
+			if (instance.getConfig().contains("players." + player.getUniqueId() + ".extraHearts")) { // Check if the player in question has addition hearts
+				health += instance.getConfig().getDouble("players." + player.getUniqueId() + ".extraHearts") * 2.0d;
 			}
-			else {
-				instance.getConfig().set("players." + player.getUniqueId() + ".extraHearts", Integer.valueOf(0));
-				instance.saveConfig();;
-			}
-			for (String str : getConfiguration().getPerms().keySet()) {
+
+			for (String str : getConfiguration().getPerms().keySet()) { // Add addition health if player has a custom health permission
 				if (player.isPermissionSet(str)) {
-					sum += ((Double) getConfiguration().getPerms().get(str)).doubleValue() * 2.0d;
+					health += ((Double) getConfiguration().getPerms().get(str)).doubleValue() * 2.0d;
 				}
 			}
-			player.setMaxHealth(sum);
-			if (sum > getConfiguration().getDefaultHealth()) { // Has extra hearts - enable/disable hide hearts for that player
-				player.setHealthScale(getConfiguration().getHideHeartAmount() * 2.0d);
+
+			if (player.getMaxHealth() != health) // Only set the player's max health if it's actually necessary
+				player.setMaxHealth(health);
+
+			if (health > getConfiguration().getDefaultHealth()) { // Player has extra hearts - enable/disable hide hearts for that player
+				if (getConfiguration().isHideHeartsEnabled())
+					player.setHealthScale(getConfiguration().getHideHeartAmount() * 2.0d);
 				player.setHealthScaled(getConfiguration().isHideHeartsEnabled());
 			}
-			if (sum < getConfiguration().getHideHeartAmount()) {
-				player.setHealthScale(sum);
+
+			if (health < getConfiguration().getHideHeartAmount()) { // Maximum health is less than the hide heart amount
+				if (getConfiguration().isHideHeartsEnabled())
+					player.setHealthScale(health);
 			}
-			if (!player.isDead()) {
+
+			if (!player.isDead()) { // What did this do originally?
 				//player.setHealth(player.getMaxHealth());
 				/*
 				 * double hp = getConfig().getDouble("players." +

@@ -51,7 +51,7 @@ public class RemoveHeartsCmd extends CommandBase {
 				MoreHearts.getInstance().getConfig().set("players." + player.getUniqueId() + ".extraHearts", Double.valueOf(currentExtraHearts - extraHeartsToRemove));
 				MoreHearts.getInstance().saveConfig();
 				MoreHearts.refreshPlayer(player);
-				sender.sendMessage("" + Colors.SECONDARY + extraHeartsToRemove + " hearts has been removed from " + player.getName());
+				sender.sendMessage("" + Colors.SECONDARY + extraHeartsToRemove + " heart(s) has been removed from " + player.getName());
 			}
 			catch (Exception e) {
 				sender.sendMessage(Colors.ERROR + "Something went wrong! Did you enter a word instead of a number? Or try removing more health than there's health?");

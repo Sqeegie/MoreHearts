@@ -46,26 +46,40 @@ public class SetHeartsCmd extends CommandBase {
 		else {
 			try {
 				Player player = (Player) offlinePlayer;
-				double finalHeartNumber = Double.parseDouble(args[1]);
+				double finalHeartNumber;
 				
-				if (finalHeartNumber > MoreHearts.getConfiguration().getMaxHearts()) {
-					sender.sendMessage("" + Colors.ERROR + "Cannot set the hearts to that! The maximum number of hearts is " + MoreHearts.getConfiguration().getMaxHearts());
+				try { // Pretty sure this method is frowned upon. . . but screw it. I'm using it anyway
+					finalHeartNumber = Double.parseDouble(args[1]);
+				}
+				catch (NumberFormatException formatException) {
+					sender.sendMessage(Colors.ERROR + "Please enter a valid number!");
 					return;
 				}
 				
-				MoreHearts.getInstance().getConfig().set("players." + player.getUniqueId() + ".extraHearts", Double.valueOf(finalHeartNumber));
-				MoreHearts.getInstance().saveConfig();
-				MoreHearts.refreshPlayer(player);
-				sender.sendMessage(Colors.SECONDARY + player.getName() + "'s hearts set to " + finalHeartNumber);
+				if (finalHeartNumber > MoreHearts.getConfiguration().getMaxHearts()) {
+					sender.sendMessage("" + Colors.ERROR + "Cannot set the maxiumum hearts to that! The maximum hearts allowed is " + MoreHearts.getConfiguration().getMaxHearts());
+					return;
+				}
+				
+				if (finalHeartNumber > 0) {
+					MoreHearts.getInstance().getConfig().set("players." + player.getUniqueId() + ".extraHearts", Double.valueOf(finalHeartNumber - (MoreHearts.getConfiguration().getDefaultHealth() / 2.0d)));
+					MoreHearts.getInstance().saveConfig();
+					MoreHearts.refreshPlayer(player);
+					sender.sendMessage(Colors.SECONDARY + player.getName() + "'s hearts is now set to " + finalHeartNumber);	
+				}
+				else {
+					sender.sendMessage(Colors.ERROR + "You cannot set the maximum hearts to a non-positive amount!");
+				}
 			}
 			catch (Exception e) {
-				sender.sendMessage(Colors.ERROR + "Something went wrong! Did you enter a word instead of a number? Or try setting the health to below zero?");
+				sender.sendMessage(Colors.ERROR + "Something went wrong! See console for details.");
+				e.printStackTrace();
 			}
 		}
 	}
 
 	@Override
 	public List<String> getDescription() {
-		return Arrays.asList("Sets the hearts for a player.");
+		return Arrays.asList("Sets the max hearts for a player.");
 	}
 }

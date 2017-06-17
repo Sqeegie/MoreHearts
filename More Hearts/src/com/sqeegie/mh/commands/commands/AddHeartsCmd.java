@@ -13,7 +13,6 @@ import com.sqeegie.mh.commands.CommandBase;
 import com.sqeegie.mh.commands.CommandException;
 import com.sqeegie.mh.commands.Permissions;
 import com.sqeegie.mh.utils.Colors;
-import com.sqeegie.mh.utils.MoreHeartsUtil;
 
 public class AddHeartsCmd extends CommandBase {
 
@@ -39,7 +38,7 @@ public class AddHeartsCmd extends CommandBase {
 
 	@Override
 	@SuppressWarnings("deprecation")
-	public void execute(CommandSender sender, String cmdName, String[] args) throws CommandException {	
+	public void execute(CommandSender sender, String cmdName, String[] args) throws CommandException {
 		OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(args[0]);
 		if (!offlinePlayer.isOnline()) {
 			sender.sendMessage(Colors.ERROR + "The player '" + args[0] + "' isn't online!");
@@ -47,23 +46,37 @@ public class AddHeartsCmd extends CommandBase {
 		else {
 			try {
 				Player player = (Player) offlinePlayer;
-				double extraHeartsToAdd = Double.parseDouble(args[1]);
-				double currentExtraHearts = MoreHearts.getInstance().getConfig().getDouble("players." + player.getUniqueId() + ".extraHearts");
-				
-				double maxHealthCheck = MoreHearts.getConfiguration().getMaxHearts();
-				double newMaxHealth = MoreHeartsUtil.roundToNearest(extraHeartsToAdd + currentExtraHearts + MoreHearts.getConfiguration().getDefaultHealth());
-				if (newMaxHealth > maxHealthCheck) {
-					sender.sendMessage("" + Colors.ERROR + "Cannot add that many hearts! The maximum number of hearts is " + maxHealthCheck);
+				double extraHeartsToAdd;
+
+				try {
+					extraHeartsToAdd = Double.parseDouble(args[1]);
+				}
+				catch (NumberFormatException formatException) {
+					sender.sendMessage(Colors.ERROR + "Please enter a valid number!");
 					return;
 				}
-				
-				MoreHearts.getInstance().getConfig().set("players." + player.getUniqueId() + ".extraHearts", Double.valueOf(currentExtraHearts + extraHeartsToAdd));
-				MoreHearts.getInstance().saveConfig();
-				MoreHearts.refreshPlayer(player);
-				sender.sendMessage("" + Colors.SECONDARY + extraHeartsToAdd + " hearts has been added to " + player.getName());
+
+				double currentExtraHearts = MoreHearts.getInstance().getConfig().getDouble("players." + player.getUniqueId() + ".extraHearts");
+				double maximumAllowedHearts = MoreHearts.getConfiguration().getMaxHearts();
+				double newMaxHearts = extraHeartsToAdd + currentExtraHearts + (MoreHearts.getConfiguration().getDefaultHealth() / 2.0d);
+
+				if (newMaxHearts > maximumAllowedHearts) {
+					sender.sendMessage("" + Colors.ERROR + "Cannot add that many hearts! The maximum hearts allowed is " + maximumAllowedHearts);
+					return;
+				}
+
+				if (newMaxHearts > 0) {
+					MoreHearts.getInstance().getConfig().set("players." + player.getUniqueId() + ".extraHearts", Double.valueOf(currentExtraHearts + extraHeartsToAdd));
+					MoreHearts.getInstance().saveConfig();
+					MoreHearts.refreshPlayer(player);
+					sender.sendMessage("" + Colors.SECONDARY + extraHeartsToAdd + " heart(s) has been added to " + player.getName());
+				}
+				else {
+					sender.sendMessage(Colors.ERROR + "You cannot set the maximum hearts to a non-positive amount!");
+				}
 			}
 			catch (Exception e) {
-				sender.sendMessage(Colors.ERROR + "Something went wrong! Did you enter a word instead of a number? Or try setting the health to below zero?");
+				sender.sendMessage(Colors.ERROR + "Something went wrong! Check the console for details.");
 				e.printStackTrace();
 			}
 		}

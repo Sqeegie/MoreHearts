@@ -13,6 +13,7 @@ import com.sqeegie.mh.MoreHearts;
 import com.sqeegie.mh.commands.commands.AddAllWorldsCmd;
 import com.sqeegie.mh.commands.commands.AddHeartsCmd;
 import com.sqeegie.mh.commands.commands.AddWorldCmd;
+import com.sqeegie.mh.commands.commands.HelpCmd;
 import com.sqeegie.mh.commands.commands.RefreshCmd;
 import com.sqeegie.mh.commands.commands.RemoveHeartsCmd;
 import com.sqeegie.mh.commands.commands.RemoveWorldCmd;
@@ -21,10 +22,11 @@ import com.sqeegie.mh.commands.commands.SetHeartsCmd;
 import com.sqeegie.mh.commands.commands.VersionCmd;
 import com.sqeegie.mh.commands.commands.WorldsCmd;
 import com.sqeegie.mh.utils.Colors;
+import com.sqeegie.mh.utils.MoreHeartsUtil;
 
 public class CommandHandler implements CommandExecutor {
 
-	private List<CommandBase> commands;
+	private static List<CommandBase> commands;
 
 	public CommandHandler() {
 		commands = MoreHearts.newList();
@@ -32,6 +34,7 @@ public class CommandHandler implements CommandExecutor {
 		registerCommand(new AddAllWorldsCmd());
 		registerCommand(new AddHeartsCmd());
 		registerCommand(new AddWorldCmd());
+		registerCommand(new HelpCmd());
 		registerCommand(new RefreshCmd());
 		registerCommand(new RemoveHeartsCmd());
 		registerCommand(new RemoveWorldCmd());
@@ -45,7 +48,7 @@ public class CommandHandler implements CommandExecutor {
 		commands.add(command);
 	}
 
-	public List<CommandBase> getCommands() {
+	public static List<CommandBase> getCommands() {
 		return new ArrayList<CommandBase>(commands);
 	}
 
@@ -55,17 +58,13 @@ public class CommandHandler implements CommandExecutor {
 		
 		if (argCount == 0) {
 			if (cmdLabel.equalsIgnoreCase("mh") || cmdLabel.equalsIgnoreCase("morehearts")) {
-				sender.sendMessage(Colors.SECONDARY + "MoreHearts help: " + Colors.MAIN + "<> - Required. " + Colors.SECONDARY + "[] - Optional");
-				for (CommandBase command : commands) {
-					List<String> description = command.getDescription();
-					sender.sendMessage(Colors.MAIN + "/" + cmd.getName() + " " + command.getName() + " " + command.getPossibleArguments() + " - " + Colors.SECONDARY + description.get(0));
-				}
+				sender.sendMessage(Colors.ERROR + "Use /mh help for a list of commands.");
 				return true;
 			}
 			if (cmdLabel.equalsIgnoreCase("hearts") || cmdLabel.equalsIgnoreCase("h")) { // TODO: Implement "fancyHeartsCmd" feature
 				if (sender instanceof Player) {
 					Player player = MoreHearts.getPlayerByUsername(sender.getName());
-					sender.sendMessage(Colors.MAIN + "You have " + Colors.SECONDARY + player.getHealth() / 2.0D + Colors.MAIN + "/" + Colors.SECONDARY + player.getMaxHealth() / 2.0D + Colors.MAIN + " hearts. (" + Colors.SECONDARY + player.getHealth() + Colors.MAIN + "/" + Colors.SECONDARY + player.getMaxHealth() + Colors.MAIN + " HP!)");
+					sender.sendMessage(Colors.MAIN + "You have " + Colors.SECONDARY + MoreHeartsUtil.roundToTenths(player.getHealth() / 2.0D) + Colors.MAIN + "/" + Colors.SECONDARY + MoreHeartsUtil.roundToTenths(player.getMaxHealth() / 2.0D) + Colors.MAIN + " hearts. (" + Colors.SECONDARY + MoreHeartsUtil.roundToTenths(player.getHealth()) + Colors.MAIN + "/" + Colors.SECONDARY + MoreHeartsUtil.roundToTenths(player.getMaxHealth()) + Colors.MAIN + " HP!)");
 					return true;
 				}
 				else {
@@ -98,7 +97,7 @@ public class CommandHandler implements CommandExecutor {
 			}
 		}
 
-		sender.sendMessage(Colors.ERROR + "Unknown command. Type /mh for a list of commands.");
+		sender.sendMessage(Colors.ERROR + "Unknown command. Type /mh help for a list of commands.");
 		return true;
 	}
 

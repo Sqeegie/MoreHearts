@@ -38,13 +38,16 @@ public class PlayerListener implements Listener {
 			MoreHearts.getInstance().getConfig().set("players." + player.getUniqueId() + ".lastSeenAs", player.getName());
 			MoreHearts.getInstance().getConfig().set("players." + player.getUniqueId() + ".HP", Double.valueOf(MoreHeartsUtil.roundToNthPlace(player.getHealth(), 2)));
 			MoreHearts.getInstance().getConfig().set("players." + player.getUniqueId() + ".extraHearts", Integer.valueOf(0));
-			MoreHearts.getInstance().saveConfig();;
+			MoreHearts.getInstance().saveConfig();
 		}
 		MoreHearts.refreshPlayer(player);
 		DisplayHealth.sendUpdate(player);
 		MoreHeartsUtil.refreshHealthbar();
+		
+		double savedHealth = MoreHearts.getInstance().getConfig().getDouble("players." + player.getUniqueId() + ".HP");
+		if (player.getMaxHealth() >= savedHealth && player.getHealth() != savedHealth)
+			player.setHealth(MoreHearts.getInstance().getConfig().getDouble("players." + player.getUniqueId() + ".HP")); // Set the player's health to what they had before quitting the server the last time
 	}
-
 	/** Saves player's health data upon quitting. */
 	@EventHandler(priority=EventPriority.MONITOR)
 	public void onPlayerQuit(PlayerQuitEvent event) {
